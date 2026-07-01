@@ -15,13 +15,13 @@ interface Notification {
 }
 
 const ICON_MAP: Record<NotifType, { icon: React.ElementType; bg: string; color: string }> = {
-  achievement: { icon: Trophy,   bg: '#FEF9C3', color: '#CA8A04' },
-  streak:      { icon: Flame,    bg: '#FEE2E2', color: '#DC2626' },
-  group:       { icon: Users,    bg: '#DBEAFE', color: '#2563EB' },
-  lesson:      { icon: BookOpen, bg: '#D1FAE5', color: '#16A34A' },
-  challenge:   { icon: Star,     bg: '#EDE9FE', color: '#7C3AED' },
-  reward:      { icon: Coins,    bg: '#FEF3C7', color: '#D97706' },
-  system:      { icon: Bell,     bg: '#F1F5F9', color: '#64748B' },
+  achievement: { icon: Trophy, bg: '#FEF9C3', color: '#CA8A04' },
+  streak: { icon: Flame, bg: '#FEE2E2', color: '#DC2626' },
+  group: { icon: Users, bg: '#DBEAFE', color: '#2563EB' },
+  lesson: { icon: BookOpen, bg: '#D1FAE5', color: '#16A34A' },
+  challenge: { icon: Star, bg: '#EDE9FE', color: '#7C3AED' },
+  reward: { icon: Coins, bg: '#FEF3C7', color: '#D97706' },
+  system: { icon: Bell, bg: '#F1F5F9', color: '#64748B' },
 };
 
 const MOCK: Notification[] = [
@@ -63,7 +63,6 @@ export default function Notifications() {
 
   return (
     <div className="size-full flex flex-col bg-background overflow-auto">
-      {/* Header */}
       <div className="bg-gradient-to-br from-primary to-blue-700 pt-14 pb-8 px-6 rounded-b-[32px] shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <button
@@ -82,16 +81,14 @@ export default function Notifications() {
           )}
         </div>
 
-        {/* Filters + mark all */}
         <div className="flex items-center justify-between">
           <div className="flex bg-white/10 rounded-2xl p-1 gap-1">
             {(['all', 'unread'] as Filter[]).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-all ${
-                  filter === f ? 'bg-white text-primary shadow' : 'text-white/80'
-                }`}
+                className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-all ${filter === f ? 'bg-white text-primary shadow' : 'text-white/80'
+                  }`}
               >
                 {f === 'all' ? 'Todas' : `Sin leer${unreadCount > 0 ? ` (${unreadCount})` : ''}`}
               </button>
@@ -106,7 +103,6 @@ export default function Notifications() {
         </div>
       </div>
 
-      {/* List */}
       <div className="flex-1 px-4 py-4 space-y-2 pb-6">
         <AnimatePresence initial={false}>
           {visible.length === 0 ? (
@@ -135,16 +131,13 @@ export default function Notifications() {
                   exit={{ opacity: 0, x: -40, height: 0, marginBottom: 0 }}
                   transition={{ duration: 0.2 }}
                   onClick={() => markRead(notif.id)}
-                  className={`relative flex gap-3 p-4 rounded-[20px] cursor-pointer transition-all ${
-                    notif.read ? 'bg-card border border-border' : 'bg-blue-50 border border-blue-200'
-                  }`}
+                  className={`relative flex gap-3 p-4 rounded-[20px] cursor-pointer transition-all ${notif.read ? 'bg-card border border-border' : 'bg-blue-50 border border-blue-200'
+                    }`}
                 >
-                  {/* Unread dot */}
                   {!notif.read && (
                     <span className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-primary" />
                   )}
 
-                  {/* Icon */}
                   <div
                     className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 mt-0.5"
                     style={{ backgroundColor: bg }}
@@ -152,7 +145,6 @@ export default function Notifications() {
                     <Icon className="w-5 h-5" style={{ color }} />
                   </div>
 
-                  {/* Text */}
                   <div className="flex-1 min-w-0 pr-4">
                     <p className={`text-sm leading-tight mb-0.5 ${notif.read ? 'text-foreground' : 'font-semibold text-foreground'}`}>
                       {notif.title}
@@ -161,7 +153,6 @@ export default function Notifications() {
                     <p className="text-xs text-muted-foreground mt-1.5">{notif.time}</p>
                   </div>
 
-                  {/* Delete */}
                   <button
                     onClick={(e) => { e.stopPropagation(); deleteNotif(notif.id); }}
                     className="absolute bottom-3 right-3 p-1 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors"

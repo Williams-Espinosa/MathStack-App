@@ -2,12 +2,10 @@ import { useEffect } from 'react';
 
 export function usePWASetup() {
   useEffect(() => {
-    // Register service worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('/sw.js').catch(() => { });
     }
 
-    // Inject manifest link if not already present
     if (!document.querySelector('link[rel="manifest"]')) {
       const link = document.createElement('link');
       link.rel = 'manifest';
@@ -15,7 +13,6 @@ export function usePWASetup() {
       document.head.appendChild(link);
     }
 
-    // iOS meta tags
     const metas: [string, string][] = [
       ['apple-mobile-web-app-capable', 'yes'],
       ['apple-mobile-web-app-status-bar-style', 'default'],
@@ -31,7 +28,6 @@ export function usePWASetup() {
       }
     });
 
-    // iOS splash icon
     if (!document.querySelector('link[rel="apple-touch-icon"]')) {
       const icon = document.createElement('link');
       icon.rel = 'apple-touch-icon';

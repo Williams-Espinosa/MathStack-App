@@ -10,19 +10,15 @@ interface OnboardingProps {
 function ChallengesIllustration() {
   return (
     <div className="relative w-64 h-64 flex items-center justify-center">
-      {/* Fondo con gradiente animado */}
       <div className="absolute inset-0 rounded-full bg-gradient-to-br from-orange-500 via-red-500 to-rose-600 shadow-2xl shadow-orange-500/40" />
 
-      {/* Anillos decorativos */}
       <div className="absolute inset-0 rounded-full border-4 border-white/10" />
       <div className="absolute inset-4 rounded-full border-2 border-white/10" />
 
-      {/* Destellos en esquinas */}
       <div className="absolute top-4 right-8 w-3 h-3 bg-yellow-300 rounded-full shadow-lg shadow-yellow-300/80" />
       <div className="absolute bottom-8 left-6 w-2 h-2 bg-white rounded-full shadow-md" />
       <div className="absolute top-12 left-5 w-1.5 h-1.5 bg-orange-200 rounded-full" />
 
-      {/* Tarjeta de reto flotante izquierda */}
       <div className="absolute -left-6 top-10 bg-white dark:bg-slate-800 rounded-2xl px-3 py-2 shadow-xl flex items-center gap-2 border border-orange-100 dark:border-orange-900/40">
         <span className="text-xl">⚡</span>
         <div>
@@ -31,7 +27,6 @@ function ChallengesIllustration() {
         </div>
       </div>
 
-      {/* Tarjeta de racha flotante derecha */}
       <div className="absolute -right-6 bottom-12 bg-white dark:bg-slate-800 rounded-2xl px-3 py-2 shadow-xl flex items-center gap-2 border border-orange-100 dark:border-orange-900/40">
         <span className="text-xl">🔥</span>
         <div>
@@ -40,17 +35,14 @@ function ChallengesIllustration() {
         </div>
       </div>
 
-      {/* Etiqueta semanal arriba */}
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-3 py-1 rounded-full shadow-md uppercase tracking-wide">
         Semana 3
       </div>
 
-      {/* Icono central */}
       <div className="relative z-10 flex flex-col items-center gap-2">
         <Swords className="w-20 h-20 text-white drop-shadow-lg" strokeWidth={1.5} />
       </div>
 
-      {/* Barra de progreso del reto abajo */}
       <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 rounded-full px-4 py-1.5 shadow-lg flex items-center gap-2 border border-orange-100 dark:border-orange-800">
         <span className="text-sm">🏆</span>
         <div className="w-24 h-2 rounded-full bg-orange-100 dark:bg-orange-900/40 overflow-hidden">
@@ -72,7 +64,6 @@ function RewardsIllustration() {
       <div className="absolute top-5 right-6 w-3 h-3 bg-white rounded-full shadow-md" />
       <div className="absolute bottom-10 left-5 w-2 h-2 bg-yellow-200 rounded-full" />
 
-      {/* Monedas flotantes */}
       <div className="absolute -left-5 top-12 bg-white dark:bg-slate-800 rounded-2xl px-3 py-2 shadow-xl flex items-center gap-2 border border-yellow-100 dark:border-yellow-900/40">
         <span className="text-xl">🪙</span>
         <div>
@@ -81,7 +72,6 @@ function RewardsIllustration() {
         </div>
       </div>
 
-      {/* Racha flotante */}
       <div className="absolute -right-5 bottom-14 bg-white dark:bg-slate-800 rounded-2xl px-3 py-2 shadow-xl flex items-center gap-2 border border-yellow-100 dark:border-yellow-900/40">
         <span className="text-xl">🔥</span>
         <div>
@@ -209,11 +199,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
           {slides.map((_, index) => (
             <div
               key={index}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                index === currentSlide
+              className={`h-2 rounded-full transition-all duration-300 ${index === currentSlide
                   ? 'w-8 bg-primary'
                   : 'w-2 bg-muted'
-              }`}
+                }`}
             />
           ))}
         </div>

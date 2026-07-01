@@ -108,11 +108,10 @@ export default function Profile() {
             {achievements.map((achievement) => (
               <div
                 key={achievement.id}
-                className={`aspect-square rounded-[20px] p-4 flex flex-col items-center justify-center shadow-sm border transition-all ${
-                  achievement.unlocked
+                className={`aspect-square rounded-[20px] p-4 flex flex-col items-center justify-center shadow-sm border transition-all ${achievement.unlocked
                     ? 'bg-card border-border'
                     : 'bg-muted/50 border-muted grayscale opacity-50'
-                }`}
+                  }`}
               >
                 <div className="text-4xl mb-2">{achievement.icon}</div>
                 <p className="text-xs text-center font-medium text-foreground">

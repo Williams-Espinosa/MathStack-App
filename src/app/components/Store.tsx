@@ -12,18 +12,18 @@ interface Avatar {
 }
 
 const INITIAL_AVATARS: Avatar[] = [
-  { id: 1,  name: 'Avatar Científico',  icon: '🧑‍🔬', price: 150, owned: false },
-  { id: 2,  name: 'Avatar Estudiante',  icon: '👨‍🎓', price: 100, owned: true  },
-  { id: 3,  name: 'Avatar Profesor',    icon: '👨‍🏫', price: 200, owned: false },
-  { id: 4,  name: 'Avatar Genio',       icon: '🧠',   price: 300, owned: false },
-  { id: 5,  name: 'Avatar Matemático',  icon: '🤓',   price: 180, owned: false },
-  { id: 6,  name: 'Avatar Artista',     icon: '🎨',   price: 220, owned: false },
-  { id: 7,  name: 'Avatar Deportista',  icon: '⚽',   price: 150, owned: false },
-  { id: 8,  name: 'Avatar Músico',      icon: '🎵',   price: 200, owned: false },
-  { id: 9,  name: 'Avatar Chef',        icon: '👨‍🍳', price: 170, owned: false },
-  { id: 10, name: 'Avatar Astronauta',  icon: '👨‍🚀', price: 350, owned: false },
-  { id: 11, name: 'Avatar Ninja',       icon: '🥷',   price: 400, owned: false },
-  { id: 12, name: 'Avatar Robot',       icon: '🤖',   price: 500, owned: false },
+  { id: 1, name: 'Avatar Científico', icon: '🧑‍🔬', price: 150, owned: false },
+  { id: 2, name: 'Avatar Estudiante', icon: '👨‍🎓', price: 100, owned: true },
+  { id: 3, name: 'Avatar Profesor', icon: '👨‍🏫', price: 200, owned: false },
+  { id: 4, name: 'Avatar Genio', icon: '🧠', price: 300, owned: false },
+  { id: 5, name: 'Avatar Matemático', icon: '🤓', price: 180, owned: false },
+  { id: 6, name: 'Avatar Artista', icon: '🎨', price: 220, owned: false },
+  { id: 7, name: 'Avatar Deportista', icon: '⚽', price: 150, owned: false },
+  { id: 8, name: 'Avatar Músico', icon: '🎵', price: 200, owned: false },
+  { id: 9, name: 'Avatar Chef', icon: '👨‍🍳', price: 170, owned: false },
+  { id: 10, name: 'Avatar Astronauta', icon: '👨‍🚀', price: 350, owned: false },
+  { id: 11, name: 'Avatar Ninja', icon: '🥷', price: 400, owned: false },
+  { id: 12, name: 'Avatar Robot', icon: '🤖', price: 500, owned: false },
 ];
 
 export default function Store() {
@@ -49,7 +49,6 @@ export default function Store() {
 
   return (
     <div className="size-full flex flex-col bg-background overflow-auto pb-28">
-      {/* Header */}
       <div className="bg-card border-b border-border px-6 py-4 shadow-sm sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-foreground">Tienda de Avatares</h1>
@@ -60,7 +59,6 @@ export default function Store() {
         </div>
       </div>
 
-      {/* Toast */}
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -75,7 +73,6 @@ export default function Store() {
         )}
       </AnimatePresence>
 
-      {/* Confirm dialog */}
       <AnimatePresence>
         {pending && (
           <>
@@ -145,7 +142,6 @@ export default function Store() {
         )}
       </AnimatePresence>
 
-      {/* Grid */}
       <div className="flex-1 px-6 py-6">
         <p className="text-sm text-muted-foreground mb-4">Personaliza tu perfil con avatares únicos</p>
 
@@ -153,9 +149,8 @@ export default function Store() {
           {avatars.map((item) => (
             <div
               key={item.id}
-              className={`rounded-[20px] p-5 shadow-md border transition-all ${
-                item.owned ? 'bg-success/10 border-success' : 'bg-card border-border hover:shadow-lg'
-              }`}
+              className={`rounded-[20px] p-5 shadow-md border transition-all ${item.owned ? 'bg-success/10 border-success' : 'bg-card border-border hover:shadow-lg'
+                }`}
             >
               <div className="aspect-square bg-gradient-to-br from-muted to-background rounded-[15px] flex items-center justify-center mb-3">
                 <span className="text-6xl">{item.icon}</span>
@@ -172,11 +167,10 @@ export default function Store() {
                 <button
                   onClick={() => setPending(item)}
                   disabled={coins < item.price}
-                  className={`w-full py-2 rounded-full text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-                    coins >= item.price
+                  className={`w-full py-2 rounded-full text-sm font-medium transition-colors flex items-center justify-center gap-2 ${coins >= item.price
                       ? 'bg-primary hover:bg-blue-700 text-white'
                       : 'bg-muted text-muted-foreground cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   <Coins className="w-4 h-4" />
                   <span>{item.price}</span>
