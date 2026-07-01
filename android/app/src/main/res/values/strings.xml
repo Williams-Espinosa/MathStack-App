@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MathStack</string>
+    <string name="title_activity_main">MathStack</string>
+    <string name="package_name">com.mathstack.app</string>
+    <string name="custom_url_scheme">com.mathstack.app</string>
+</resources>

@@ -24,12 +24,7 @@ export default function Login({ onLogin }: LoginProps) {
         <div className="bg-gradient-to-br from-primary to-blue-700 py-16 px-8 rounded-b-[40px] shadow-xl">
           <div className="flex justify-center mb-6">
             <div className="bg-white/20 p-6 rounded-3xl backdrop-blur-sm">
-              <svg width="80" height="80" viewBox="0 0 120 120" fill="none">
-                <rect x="10" y="60" width="25" height="50" rx="4" fill="#FACC15" />
-                <rect x="40" y="40" width="25" height="70" rx="4" fill="#22C55E" />
-                <rect x="70" y="20" width="25" height="90" rx="4" fill="#ffffff" />
-                <path d="M 10 60 L 52.5 50 L 82.5 30" stroke="white" strokeWidth="3" fill="none" />
-              </svg>
+              <img src="LogoFelizSinFondo.png" alt="" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-white text-center mb-2">
