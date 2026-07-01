@@ -10,21 +10,21 @@
   "start_url": "/",
   "icons": [
     {
-      "src": "/icons/LogoFelizSinFondo.png",
+      "src": "dist/icons/logo.svg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/icons/LogoFelizSinFondo.png",
+      "src": "dist/icons/logo.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/LogoFelizSinFondo.png",
+      "src": "dist/icons/logo.svg",
       "sizes": "180x180",
-      "type": "image/png"
+      "type": "image/svg+xml"
     }
   ]
 }
