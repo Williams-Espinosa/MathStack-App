@@ -105,18 +105,17 @@ export default function Login({ onLogin }: LoginProps) {
             <div className="text-center space-y-2 pt-4">
               <p className="text-sm text-muted-foreground">
                 ¿No tienes cuenta?{' '}
-                <button
-                  type="button"
-                  onClick={() => navigate('/register')}
+                <Link
+                  to="/register"
                   className="text-primary hover:underline font-medium"
                 >
                   Crear cuenta
-                </button>
+                </Link>
               </p>
               <p className="text-xs text-muted-foreground">
-                <button type="button" className="hover:underline">Términos y Condiciones</button>
+                <Link to="/terms" className="hover:underline">Términos y Condiciones</Link>
                 {' · '}
-                <button type="button" className="hover:underline">Privacidad</button>
+                <Link to="/privacy" className="hover:underline">Privacidad</Link>
               </p>
             </div>
           </form>

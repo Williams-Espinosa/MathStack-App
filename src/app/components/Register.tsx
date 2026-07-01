@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { User, Mail, Lock, Chrome, Check } from 'lucide-react';
 
 interface RegisterProps {
@@ -116,9 +116,9 @@ export default function Register({ onRegister }: RegisterProps) {
               </button>
               <label className="text-sm text-muted-foreground">
                 Acepto los{' '}
-                <button type="button" className="text-primary hover:underline">
+                <Link to="/terms" className="text-primary hover:underline">
                   Términos y Condiciones
-                </button>
+                </Link>
               </label>
             </div>
 
@@ -150,13 +150,12 @@ export default function Register({ onRegister }: RegisterProps) {
             <div className="text-center pt-4">
               <p className="text-sm text-muted-foreground">
                 ¿Ya tienes cuenta?{' '}
-                <button
-                  type="button"
-                  onClick={() => navigate('/login')}
+                <Link
+                  to="/login"
                   className="text-primary hover:underline font-medium"
                 >
                   Iniciar sesión
-                </button>
+                </Link>
               </p>
             </div>
           </form>

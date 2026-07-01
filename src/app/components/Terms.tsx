@@ -42,7 +42,7 @@ export default function Terms() {
   return (
     <div className="size-full flex flex-col bg-background overflow-auto pb-28">
       <div className="bg-gradient-to-br from-primary to-blue-700 px-6 pt-8 pb-12 rounded-b-[40px] shadow-xl">
-        <button onClick={() => navigate('/settings')} className="p-2 hover:bg-white/10 rounded-full transition-colors mb-6">
+        <button onClick={() => navigate(-1)} className="p-2 hover:bg-white/10 rounded-full transition-colors mb-6">
           <ArrowLeft className="w-6 h-6 text-white" />
         </button>
         <div className="flex items-center gap-4 mb-2">
