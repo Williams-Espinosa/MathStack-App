@@ -21,10 +21,10 @@ export default function Login({ onLogin }: LoginProps) {
   return (
     <div className="size-full flex flex-col bg-background overflow-auto">
       <div className="flex-1 flex flex-col">
-        <div className="bg-gradient-to-br from-primary to-blue-700 py-16 px-8 rounded-b-[40px] shadow-xl">
+        <div className="bg-gradient-to-br from-primary to-blue-700 py-10 px-8 rounded-b-[40px] shadow-xl">
           <div className="flex justify-center mb-6">
-            <div className="bg-white/20 p-6 rounded-3xl backdrop-blur-sm">
-              <img src="dist/icons/logo.svg" alt="MathStack Logo" className="w-48 h-48 object-contain" />
+            <div className="bg-white/20 p-3 rounded-3xl backdrop-blur-sm">
+              <img src="/icons/LogoFelizSinFondo.png" alt="MathStack Logo" className="w-32 h-32 object-contain scale-125" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-white text-center mb-2">

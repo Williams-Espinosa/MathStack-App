@@ -31,7 +31,7 @@ export function usePWASetup() {
     if (!document.querySelector('link[rel="apple-touch-icon"]')) {
       const icon = document.createElement('link');
       icon.rel = 'apple-touch-icon';
-      icon.href = '/icons/icon-180.png';
+      icon.href = '/icons/LogoFelizSinFondo.png';
       document.head.appendChild(icon);
     }
   }, []);
