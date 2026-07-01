@@ -35,7 +35,7 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
-  const { prompt, install, canInstall } = usePWAInstall();
+  const { prompt, install, canInstall, isIOS } = usePWAInstall();
   usePWASetup();
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className="size-full bg-background max-w-md mx-auto relative">
-        {canInstall && <InstallBanner onInstall={install} />}
+        {canInstall && <InstallBanner onInstall={install} isIOS={isIOS} />}
         <Routes>
           <Route path="/" element={
             !hasSeenOnboarding ? <Navigate to="/onboarding" /> :

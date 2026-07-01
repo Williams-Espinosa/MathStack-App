@@ -8,8 +8,17 @@ interface BeforeInstallPromptEvent extends Event {
 export function usePWAInstall() {
   const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [canInstall, setCanInstall] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
+    const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+
+    if (isIosDevice && !isStandalone) {
+      setIsIOS(true);
+      setCanInstall(true);
+    }
+
     const handler = (e: Event) => {
       e.preventDefault();
       setPrompt(e as BeforeInstallPromptEvent);
@@ -29,5 +38,5 @@ export function usePWAInstall() {
     }
   };
 
-  return { prompt, install, canInstall };
+  return { prompt, install, canInstall, isIOS };
 }

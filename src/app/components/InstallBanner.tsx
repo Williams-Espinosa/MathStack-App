@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { X, Download, Smartphone } from 'lucide-react';
+import { X, Download, Smartphone, Share } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface Props {
   onInstall: () => void;
+  isIOS?: boolean;
 }
 
-export default function InstallBanner({ onInstall }: Props) {
+export default function InstallBanner({ onInstall, isIOS }: Props) {
   const [dismissed, setDismissed] = useState(false);
 
   return (
@@ -25,15 +26,21 @@ export default function InstallBanner({ onInstall }: Props) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white font-semibold text-sm leading-tight">Instala MathStack</p>
-              <p className="text-white/75 text-xs">Accede rápido desde tu pantalla de inicio</p>
+              {isIOS ? (
+                <p className="text-white/75 text-xs">Toca <Share className="inline w-3 h-3 mx-1" /> y selecciona "Añadir a inicio"</p>
+              ) : (
+                <p className="text-white/75 text-xs">Accede rápido desde tu pantalla de inicio</p>
+              )}
             </div>
-            <button
-              onClick={onInstall}
-              className="bg-white text-primary px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 flex-shrink-0 hover:bg-blue-50 transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Instalar
-            </button>
+            {!isIOS && (
+              <button
+                onClick={onInstall}
+                className="bg-white text-primary px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 flex-shrink-0 hover:bg-blue-50 transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Instalar
+              </button>
+            )}
             <button
               onClick={() => setDismissed(true)}
               className="p-1 text-white/60 hover:text-white transition-colors flex-shrink-0"
