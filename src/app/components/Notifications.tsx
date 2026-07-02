@@ -24,18 +24,7 @@ const ICON_MAP: Record<NotifType, { icon: React.ElementType; bg: string; color: 
   system: { icon: Bell, bg: '#F1F5F9', color: '#64748B' },
 };
 
-const MOCK: Notification[] = [
-  { id: '1', type: 'achievement', title: '¡Logro desbloqueado!', body: 'Completaste "Maestro del Álgebra" — ganaste 500 XP y una insignia dorada.', time: 'Hace 5 min', read: false },
-  { id: '2', type: 'streak', title: '¡Racha de 7 días! 🔥', body: 'Llevas una semana sin fallar. ¡Sigue así para ganar la recompensa especial!', time: 'Hace 1 h', read: false },
-  { id: '3', type: 'group', title: 'Nuevo mensaje en tu grupo', body: 'Carlos García comentó en "Matemáticas Avanzadas": "¿Alguien resolvió el ejercicio 5?"', time: 'Hace 2 h', read: false },
-  { id: '4', type: 'challenge', title: 'Reto semanal disponible', body: '¡El reto "Álgebra Express" ya está activo! Tienes 3 días para completarlo y ganar 300 monedas.', time: 'Hace 3 h', read: false },
-  { id: '5', type: 'lesson', title: 'Nueva lección desbloqueada', body: 'Completaste el nivel anterior — "Ecuaciones cuadráticas" ya está disponible.', time: 'Ayer', read: true },
-  { id: '6', type: 'reward', title: '¡Recompensa reclamada!', body: 'Canjeaste el avatar "Científico Galáctico" por 800 monedas. ¡Que lo disfrutes!', time: 'Ayer', read: true },
-  { id: '7', type: 'group', title: 'Solicitud de grupo aceptada', body: 'Ahora eres miembro de "Cálculo Avanzado" — saluda a tus nuevos compañeros.', time: 'Hace 2 días', read: true },
-  { id: '8', type: 'achievement', title: 'Top 10 en clasificación', body: 'Esta semana alcanzaste el puesto #8 en el ranking global. ¡Sube un poco más!', time: 'Hace 2 días', read: true },
-  { id: '9', type: 'system', title: 'Actualización de MathStack', body: 'Nueva versión disponible con mejoras en velocidad y nuevos avatares en la tienda.', time: 'Hace 3 días', read: true },
-  { id: '10', type: 'lesson', title: 'Recuerda practicar hoy', body: 'No has completado ningún ejercicio hoy. ¡10 minutos son suficientes para mantener tu racha!', time: 'Hace 4 días', read: true },
-];
+const MOCK: Notification[] = [];
 
 type Filter = 'all' | 'unread';
 

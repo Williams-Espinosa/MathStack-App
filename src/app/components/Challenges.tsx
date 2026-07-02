@@ -16,63 +16,7 @@ interface Challenge {
   joined: boolean;
 }
 
-const INITIAL: Challenge[] = [
-  {
-    id: 1,
-    title: 'Maratón de Álgebra',
-    description: 'Completa 10 ejercicios de álgebra',
-    difficulty: 'Fácil',
-    timeLeft: '3 días',
-    reward: { coins: 100, xp: 150 },
-    progress: 60,
-    participants: 124,
-    joined: true,
-  },
-  {
-    id: 2,
-    title: 'Desafío de Cálculo',
-    description: 'Resuelve 5 problemas de derivadas',
-    difficulty: 'Difícil',
-    timeLeft: '5 días',
-    reward: { coins: 250, xp: 300 },
-    progress: 20,
-    participants: 89,
-    joined: true,
-  },
-  {
-    id: 3,
-    title: 'Sprint de Aritmética',
-    description: 'Completa 15 ejercicios en menos de 1 hora',
-    difficulty: 'Medio',
-    timeLeft: '2 días',
-    reward: { coins: 150, xp: 200 },
-    progress: 0,
-    participants: 256,
-    joined: false,
-  },
-  {
-    id: 4,
-    title: 'Reto de Geometría',
-    description: 'Resuelve 8 problemas de geometría plana',
-    difficulty: 'Medio',
-    timeLeft: '4 días',
-    reward: { coins: 180, xp: 220 },
-    progress: 0,
-    participants: 312,
-    joined: false,
-  },
-  {
-    id: 5,
-    title: 'Estadística Express',
-    description: 'Completa el módulo de probabilidad básica',
-    difficulty: 'Fácil',
-    timeLeft: '6 días',
-    reward: { coins: 120, xp: 160 },
-    progress: 0,
-    participants: 198,
-    joined: false,
-  },
-];
+const INITIAL: Challenge[] = [];
 
 const DIFFICULTY_STYLES = {
   Fácil: { pill: 'bg-green-100 text-green-700', bar: 'bg-green-500' },
@@ -102,11 +46,11 @@ export default function Challenges() {
         prev.map((c) =>
           c.id === challenge.id
             ? {
-                ...c,
-                joined: !c.joined,
-                participants: c.joined ? c.participants - 1 : c.participants + 1,
-                progress: c.joined ? 0 : c.progress,
-              }
+              ...c,
+              joined: !c.joined,
+              participants: c.joined ? c.participants - 1 : c.participants + 1,
+              progress: c.joined ? 0 : c.progress,
+            }
             : c
         )
       );
@@ -120,14 +64,12 @@ export default function Challenges() {
 
   return (
     <div className="size-full flex flex-col bg-background overflow-auto pb-28">
-      {/* Header */}
       <div className="bg-card border-b border-border px-6 py-4 shadow-sm sticky top-0 z-10">
         <div className="flex items-center justify-center">
           <h1 className="text-xl font-semibold text-foreground">Retos Semanales</h1>
         </div>
       </div>
 
-      {/* Toast notifications */}
       <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-72">
         <AnimatePresence>
           {toasts.map((t) => (
@@ -136,9 +78,8 @@ export default function Challenges() {
               initial={{ opacity: 0, y: -16, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg text-white text-sm font-medium ${
-                t.joined ? 'bg-primary' : 'bg-muted-foreground'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg text-white text-sm font-medium ${t.joined ? 'bg-primary' : 'bg-muted-foreground'
+                }`}
             >
               {t.joined ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <X className="w-4 h-4 flex-shrink-0" />}
               <span>{t.joined ? `Te uniste a "${t.title}"` : `Abandonaste "${t.title}"`}</span>
@@ -148,7 +89,6 @@ export default function Challenges() {
       </div>
 
       <div className="flex-1 px-6 py-6 space-y-6">
-        {/* Banner */}
         <div className="bg-gradient-to-r from-warning to-yellow-500 rounded-[20px] p-5 shadow-lg flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
             <Trophy className="w-6 h-6 text-white" />
@@ -160,8 +100,6 @@ export default function Challenges() {
             </p>
           </div>
         </div>
-
-        {/* Joined challenges */}
         {joined.length > 0 && (
           <section>
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Mis retos</h2>
@@ -178,8 +116,6 @@ export default function Challenges() {
             </div>
           </section>
         )}
-
-        {/* Available challenges */}
         {available.length > 0 && (
           <section>
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Disponibles</h2>
@@ -219,9 +155,8 @@ function ChallengeCard({
   return (
     <motion.div
       layout
-      className={`bg-card rounded-[20px] p-5 shadow-md border transition-shadow hover:shadow-lg ${
-        challenge.joined ? 'border-primary/30' : 'border-border'
-      }`}
+      className={`bg-card rounded-[20px] p-5 shadow-md border transition-shadow hover:shadow-lg ${challenge.joined ? 'border-primary/30' : 'border-border'
+        }`}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 pr-3">

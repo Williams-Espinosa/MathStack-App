@@ -2,35 +2,7 @@ import { useNavigate } from 'react-router';
 import { ArrowLeft, Users, Plus, TrendingUp, Trophy } from 'lucide-react';
 import BottomNav from './BottomNav';
 
-const groups = [
-  {
-    id: 1,
-    name: 'Matemáticas Avanzadas',
-    members: 24,
-    subject: 'Cálculo',
-    level: 'Avanzado',
-    activeChallenges: 3,
-    color: 'from-purple-500 to-purple-600'
-  },
-  {
-    id: 2,
-    name: 'Álgebra para Todos',
-    members: 45,
-    subject: 'Álgebra',
-    level: 'Intermedio',
-    activeChallenges: 5,
-    color: 'from-blue-500 to-blue-600'
-  },
-  {
-    id: 3,
-    name: 'Aritmética Básica',
-    members: 67,
-    subject: 'Aritmética',
-    level: 'Principiante',
-    activeChallenges: 2,
-    color: 'from-green-500 to-green-600'
-  }
-];
+const groups: any[] = [];
 
 export default function Groups() {
   const navigate = useNavigate();
@@ -57,7 +29,7 @@ export default function Groups() {
             </div>
             <div>
               <h2 className="text-white text-xl font-bold">Mis Grupos</h2>
-              <p className="text-white/80 text-sm">3 grupos activos</p>
+              <p className="text-white/80 text-sm">{groups.length} grupos activos</p>
             </div>
           </div>
         </div>
