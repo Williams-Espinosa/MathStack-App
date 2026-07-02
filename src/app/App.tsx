@@ -61,8 +61,8 @@ function AppRoutes() {
                 <Navigate to="/dashboard" />
           } />
           <Route path="/onboarding" element={<Onboarding onComplete={() => setHasSeenOnboarding(true)} />} />
-          <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} />
-          <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/diagnostic" element={<DiagnosticTest />} />
           <Route path="/diagnostic-results" element={<DiagnosticResults />} />

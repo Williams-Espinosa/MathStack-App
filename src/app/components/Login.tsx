@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, Lock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -10,7 +10,13 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +32,11 @@ export default function Login() {
       toast.success('¡Sesión iniciada con éxito!');
       navigate('/dashboard');
     } catch (error: any) {
-      toast.error(error.message || 'Error al iniciar sesión');
+      if (error.message === 'Invalid email or password') {
+        toast.error('El correo no está registrado o la contraseña es incorrecta.');
+      } else {
+        toast.error(error.message || 'Error al iniciar sesión');
+      }
     } finally {
       setIsSubmitting(false);
     }
