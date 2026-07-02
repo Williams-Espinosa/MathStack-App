@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { ArrowLeft, Bell, Moon, Globe, Clock, User, Lock, FileText, Info, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
 
-export default function Settings() {
+interface SettingsProps {
+  onLogout?: () => void;
+}
+
+export default function Settings({ onLogout }: SettingsProps) {
   const [notifications, setNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
@@ -26,7 +30,6 @@ export default function Settings() {
       items: [
         { icon: Bell, label: 'Notificaciones', hasToggle: true, value: notifications, onChange: setNotifications },
         { icon: Moon, label: 'Modo oscuro', hasToggle: true, value: darkMode, onChange: setDarkMode },
-        { icon: Clock, label: 'Recordatorios de práctica', hasToggle: true, value: reminders, onChange: setReminders }
       ]
     },
     {
@@ -96,14 +99,12 @@ export default function Settings() {
                             e.stopPropagation();
                             item.onChange && item.onChange(!item.value);
                           }}
-                          className={`w-12 h-7 rounded-full transition-colors relative ${
-                            item.value ? 'bg-primary' : 'bg-muted'
-                          }`}
+                          className={`w-12 h-7 rounded-full transition-colors relative ${item.value ? 'bg-primary' : 'bg-muted'
+                            }`}
                         >
                           <div
-                            className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
-                              item.value ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md transition-transform ${item.value ? 'translate-x-6' : 'translate-x-1'
+                              }`}
                           />
                         </button>
                       ) : (
@@ -120,7 +121,13 @@ export default function Settings() {
           ))}
 
           <div className="pt-4">
-            <button className="w-full bg-destructive/10 hover:bg-destructive/20 text-destructive py-4 rounded-[20px] font-medium transition-colors flex items-center justify-center gap-2">
+            <button
+              onClick={() => {
+                if (onLogout) onLogout();
+                navigate('/login');
+              }}
+              className="w-full bg-destructive/10 hover:bg-destructive/20 text-destructive py-4 rounded-[20px] font-medium transition-colors flex items-center justify-center gap-2"
+            >
               <LogOut className="w-5 h-5" />
               <span>Cerrar sesión</span>
             </button>

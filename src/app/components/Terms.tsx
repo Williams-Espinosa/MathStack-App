@@ -81,7 +81,7 @@ export default function Terms() {
           <div className="bg-muted rounded-[20px] p-5 mt-6">
             <p className="text-sm text-muted-foreground text-center">
               ¿Preguntas sobre los términos?{' '}
-              <a href="mailto:legal@mathstack.com" className="text-primary hover:underline">
+              <a href="mailto:w.espinosa.it@gmail.com" className="text-primary hover:underline">
                 Contáctanos
               </a>
             </p>

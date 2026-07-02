@@ -37,19 +37,6 @@ export default function AccountManagement() {
                   className="w-full px-4 py-3 bg-background border border-border rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm mb-2 text-foreground">
-                  <Mail className="w-4 h-4" />
-                  Correo electrónico
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-[20px] focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
             </div>
 
             <button className="w-full mt-6 bg-primary hover:bg-blue-700 text-white py-3 rounded-[20px] font-medium transition-colors">
@@ -60,7 +47,7 @@ export default function AccountManagement() {
           <div className="bg-card rounded-[20px] p-6 shadow-sm border border-border">
             <h3 className="font-semibold text-foreground mb-4">Seguridad</h3>
 
-            <button className="w-full flex items-center justify-between px-4 py-3 bg-background hover:bg-muted border border-border rounded-[20px] transition-colors">
+            <button onClick={() => navigate('/change-password')} className="w-full flex items-center justify-between px-4 py-3 bg-background hover:bg-muted border border-border rounded-[20px] transition-colors">
               <div className="flex items-center gap-3">
                 <Lock className="w-5 h-5 text-primary" />
                 <span className="text-foreground">Cambiar contraseña</span>

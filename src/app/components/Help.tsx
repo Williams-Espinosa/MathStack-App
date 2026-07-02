@@ -108,7 +108,7 @@ export default function Help() {
     ...category,
     questions: category.questions.filter(
       q => q.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           q.a.toLowerCase().includes(searchQuery.toLowerCase())
+        q.a.toLowerCase().includes(searchQuery.toLowerCase())
     )
   })).filter(category => category.questions.length > 0);
 
@@ -195,7 +195,7 @@ export default function Help() {
             Nuestro equipo de soporte está listo para ayudarte
           </p>
           <a
-            href="mailto:support@mathstack.com"
+            href="mailto:w.espinosa.it@gmail.com"
             className="inline-block bg-white text-primary px-6 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors"
           >
             Contactar Soporte

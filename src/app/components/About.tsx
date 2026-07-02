@@ -5,10 +5,10 @@ export default function About() {
   const navigate = useNavigate();
 
   const team = [
-    { name: 'Williams Espinosa Lopez', role: 'Android Developer', icon: '👨‍💻' },
-    { name: 'Alexis Garcia Rojas', role: 'Lead Developer & UI/UX', icon: '👨‍🏫' },
-    { name: 'Daniel Camacho Morales', role: 'Backend Developer', icon: '👨‍💻' },
-    { name: 'Alonso Guadalupe Hernandez Mendoza', role: 'Asesor Academico', icon: '👨‍🏫' },
+    { name: 'Williams Espinosa Lopez', role: 'Frontend Developer' },
+    { name: 'Alexis Garcia Rojas', role: 'UI/UX & Lead Developer' },
+    { name: 'Daniel Camacho Morales', role: 'Backend Developer' },
+    { name: 'Alonso Guadalupe Hernandez Mendoza', role: 'Asesor Academico' },
   ];
 
   return (
@@ -19,11 +19,7 @@ export default function About() {
         </button>
         <div className="flex flex-col items-center text-center">
           <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm mb-4">
-            <svg width="60" height="60" viewBox="0 0 120 120" fill="none">
-              <rect x="10" y="60" width="25" height="50" rx="4" fill="#FACC15" />
-              <rect x="40" y="40" width="25" height="70" rx="4" fill="#22C55E" />
-              <rect x="70" y="20" width="25" height="90" rx="4" fill="#ffffff" />
-            </svg>
+            <img src="/icons/LogoFelizSinFondo.png" alt="MathStack Logo" className="w-24 h-24 object-contain scale-125" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">MathStack</h1>
           <p className="text-white/80 text-sm mb-1">Versión 1.0.0</p>
@@ -63,11 +59,10 @@ export default function About() {
 
         <div className="bg-card rounded-[20px] p-6 shadow-sm border border-border mb-6">
           <div className="flex items-start gap-3">
-            <Heart className="w-6 h-6 text-destructive flex-shrink-0 mt-1" />
             <div>
-              <h3 className="font-semibold text-foreground mb-2">Hecho con ❤️</h3>
+              <h3 className="font-semibold text-foreground mb-2">Hecho con pasion</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                MathStack es desarrollado por un equipo apasionado de educadores y tecnólogos
+                MathStack es desarrollado por un equipo apasionado de estudiantes y docentes
                 dedicados a hacer las matemáticas accesibles para todos.
               </p>
             </div>

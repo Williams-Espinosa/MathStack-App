@@ -18,16 +18,8 @@ export default function SplashScreen() {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="flex flex-col items-center z-10"
       >
-        <div className="mb-8 bg-white/10 p-8 rounded-3xl backdrop-blur-sm border border-white/20 shadow-2xl">
-          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-            <rect x="10" y="60" width="25" height="50" rx="4" fill="#FACC15" />
-            <rect x="40" y="40" width="25" height="70" rx="4" fill="#22C55E" />
-            <rect x="70" y="20" width="25" height="90" rx="4" fill="#60A5FA" />
-            <path d="M 10 60 L 52.5 50 L 82.5 30" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            <circle cx="10" cy="60" r="4" fill="white" />
-            <circle cx="52.5" cy="50" r="4" fill="white" />
-            <circle cx="82.5" cy="30" r="4" fill="white" />
-          </svg>
+        <div className="mb-8 bg-white/10 p-3 rounded-3xl backdrop-blur-sm border border-white/20 shadow-2xl flex items-center justify-center">
+          <img src="/icons/LogoFelizSinFondo.png" alt="MathStack Logo" className="w-32 h-32 object-contain scale-125" />
         </div>
 
         <motion.h1

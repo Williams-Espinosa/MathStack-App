@@ -56,8 +56,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={
             !hasSeenOnboarding ? <Navigate to="/onboarding" /> :
-            !isAuthenticated ? <Navigate to="/login" /> :
-            <Navigate to="/dashboard" />
+              !isAuthenticated ? <Navigate to="/login" /> :
+                <Navigate to="/dashboard" />
           } />
           <Route path="/onboarding" element={<Onboarding onComplete={() => setHasSeenOnboarding(true)} />} />
           <Route path="/login" element={<Login onLogin={() => setIsAuthenticated(true)} />} />
@@ -76,7 +76,7 @@ export default function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/store" element={<Store />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" element={<Settings onLogout={() => setIsAuthenticated(false)} />} />
           <Route path="/account" element={<AccountManagement />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />

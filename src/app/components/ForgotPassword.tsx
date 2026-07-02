@@ -124,10 +124,8 @@ export default function ForgotPassword() {
         </AnimatePresence>
       </div>
 
-      {/* Content */}
       <div className="flex-1 px-8 py-8">
         <AnimatePresence mode="wait">
-          {/* Step 1: Enter email */}
           {step === 'email' && (
             <motion.form
               key="step-email"
@@ -178,7 +176,6 @@ export default function ForgotPassword() {
             </motion.form>
           )}
 
-          {/* Step 2: Enter code */}
           {step === 'sent' && (
             <motion.div
               key="step-sent"
@@ -240,7 +237,6 @@ export default function ForgotPassword() {
             </motion.div>
           )}
 
-          {/* Step 3: Success */}
           {step === 'verify' && (
             <motion.div
               key="step-verify"

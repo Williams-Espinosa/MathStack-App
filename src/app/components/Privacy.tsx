@@ -79,9 +79,9 @@ export default function Privacy() {
 
           <div className="bg-muted rounded-[20px] p-5 mt-6">
             <p className="text-sm text-muted-foreground text-center">
-              Si tienes preguntas sobre nuestra política de privacidad, contáctanos en{' '}
-              <a href="mailto:privacy@mathstack.com" className="text-primary hover:underline">
-                privacy@mathstack.com
+              Si tienes preguntas sobre nuestra política de privacidad.{' '}
+              <a href="mailto:w.espinosa.it@gmail.com" className="text-primary hover:underline">
+                Contáctanos
               </a>
             </p>
           </div>

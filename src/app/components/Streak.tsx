@@ -44,8 +44,8 @@ export default function Streak() {
             transition={{ type: "spring", bounce: 0.5 }}
             className="relative mb-6"
           >
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center shadow-2xl">
-              <Flame className="w-20 h-20 text-white" />
+            <div className="w-32 h-32  justify-center ">
+              <img src="/assets/fuego-3d.png" alt="" />
             </div>
             <motion.div
               animate={{ scale: [1, 1.2, 1] }}
@@ -75,9 +75,8 @@ export default function Streak() {
           <div className="grid grid-cols-7 gap-2">
             {calendar.map((item, index) => (
               <div key={index} className="flex flex-col items-center gap-2">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  item.active ? 'bg-success' : 'bg-muted'
-                }`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.active ? 'bg-success' : 'bg-muted'
+                  }`}>
                   {item.active && <Flame className="w-5 h-5 text-white" />}
                 </div>
                 <span className="text-xs text-muted-foreground">{item.day}</span>
@@ -94,14 +93,13 @@ export default function Streak() {
                 week.map((day, dayIndex) => (
                   <div
                     key={`${weekIndex}-${dayIndex}`}
-                    className={`w-3 h-3 rounded-sm ${
-                      day.active
-                        ? day.intensity === 0 ? 'bg-success/20' :
-                          day.intensity === 1 ? 'bg-success/40' :
+                    className={`w-3 h-3 rounded-sm ${day.active
+                      ? day.intensity === 0 ? 'bg-success/20' :
+                        day.intensity === 1 ? 'bg-success/40' :
                           day.intensity === 2 ? 'bg-success/70' :
-                          'bg-success'
-                        : 'bg-muted'
-                    }`}
+                            'bg-success'
+                      : 'bg-muted'
+                      }`}
                     title={`Día ${weekIndex * 7 + dayIndex + 1}`}
                   />
                 ))
@@ -121,14 +119,10 @@ export default function Streak() {
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-warning to-yellow-500 rounded-[20px] p-6 shadow-lg">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-500 rounded-[20px] p-6 shadow-lg">
           <div className="flex items-center gap-4 mb-3">
             <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
               <Trophy className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="text-white/80 text-sm">Récord personal</p>
-              <p className="text-white text-2xl font-bold">{bestStreak} días</p>
             </div>
           </div>
           <p className="text-white/90 text-sm">
