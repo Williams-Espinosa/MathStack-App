@@ -17,6 +17,13 @@ export default function Register() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
+    if (!passwordRegex.test(password)) {
+      toast.error('La contraseña no cumple con los requisitos de seguridad.');
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error('Las contraseñas no coinciden.');
       return;
@@ -130,6 +137,17 @@ export default function Register() {
                     required
                   />
                 </div>
+                <ul className="text-xs mt-2 pl-2 space-y-1">
+                  <li className={password.length === 0 ? "text-muted-foreground" : (/(?=.*[A-Z])/.test(password) ? "text-green-500" : "text-red-500")}>
+                    • Al menos una mayúscula
+                  </li>
+                  <li className={password.length === 0 ? "text-muted-foreground" : (/(?=.*[a-z])/.test(password) ? "text-green-500" : "text-red-500")}>
+                    • Al menos una minúscula
+                  </li>
+                  <li className={password.length === 0 ? "text-muted-foreground" : (/(?=.*\d)/.test(password) ? "text-green-500" : "text-red-500")}>
+                    • Al menos un número
+                  </li>
+                </ul>
               </div>
 
               <div>
