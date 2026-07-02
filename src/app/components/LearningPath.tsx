@@ -1,18 +1,47 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { ArrowLeft, Lock, Check, Circle, Zap } from 'lucide-react';
-
-const lessons = [
-  { id: 1, title: 'Introducción al álgebra', xp: 50, status: 'completed' },
-  { id: 2, title: 'Ecuaciones lineales', xp: 75, status: 'available' },
-  { id: 3, title: 'Sistemas de ecuaciones', xp: 100, status: 'available' },
-  { id: 4, title: 'Ecuaciones cuadráticas', xp: 125, status: 'locked' },
-  { id: 5, title: 'Funciones lineales', xp: 100, status: 'locked' },
-  { id: 6, title: 'Polinomios', xp: 150, status: 'locked' },
-  { id: 7, title: 'Factorización', xp: 125, status: 'locked' }
-];
+import { academicService } from '../services/academicService';
+import { SubjectResponse, LessonResponse } from '../types/api';
+import { toast } from 'sonner';
 
 export default function LearningPath() {
   const navigate = useNavigate();
+  const [subjects, setSubjects] = useState<SubjectResponse[]>([]);
+  const [lessons, setLessons] = useState<(LessonResponse & { status: string, xp: number })[]>([]);
+  const [currentSubject, setCurrentSubject] = useState<SubjectResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadLearningPath = async () => {
+      setIsLoading(true);
+      try {
+        const subjectsData = await academicService.getSubjects();
+        setSubjects(subjectsData);
+
+        if (subjectsData.length > 0) {
+          const firstSubject = subjectsData[0];
+          setCurrentSubject(firstSubject);
+
+          const lessonsData = await academicService.getLessons(firstSubject.id);
+
+          const lessonsWithUIState = lessonsData.map((lesson, idx) => ({
+            ...lesson,
+            status: idx === 0 ? 'completed' : idx === 1 ? 'available' : 'locked',
+            xp: lesson.difficultyLevel * 25
+          }));
+
+          setLessons(lessonsWithUIState);
+        }
+      } catch (error: any) {
+        toast.error(error.message || 'Error al cargar la ruta de aprendizaje');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadLearningPath();
+  }, []);
 
   const getStatusIcon = (status: string) => {
     if (status === 'completed') return <Check className="w-6 h-6 text-white" />;
@@ -25,6 +54,8 @@ export default function LearningPath() {
     if (status === 'available') return 'bg-primary border-primary';
     return 'bg-muted-foreground/50 border-muted-foreground/50';
   };
+
+  const totalXP = lessons.reduce((acc, curr) => acc + curr.xp, 0);
 
   return (
     <div className="size-full flex flex-col bg-background overflow-auto pb-28">
@@ -39,62 +70,73 @@ export default function LearningPath() {
       </div>
 
       <div className="flex-1 px-6 py-8">
-        <div className="bg-gradient-to-r from-primary to-blue-700 rounded-[20px] p-6 mb-8 shadow-lg">
-          <h2 className="text-white text-2xl font-bold mb-2">Álgebra Básica</h2>
-          <p className="text-white/80 text-sm mb-4">7 lecciones · 625 XP total</p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full bg-white rounded-full" style={{ width: '14%' }}></div>
-            </div>
-            <span className="text-white text-sm">1/7</span>
+        {isLoading ? (
+          <div className="text-center py-10 text-muted-foreground">
+            Cargando ruta de aprendizaje...
           </div>
-        </div>
-
-        <div className="relative">
-          <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-border"></div>
-
-          <div className="space-y-6">
-            {lessons.map((lesson, index) => (
-              <div key={lesson.id} className="relative">
-                <div className="flex items-start gap-4">
-                  <div className={`relative z-10 w-16 h-16 rounded-full border-4 ${getStatusColor(lesson.status)} flex items-center justify-center shadow-lg`}>
-                    {getStatusIcon(lesson.status)}
-                  </div>
-
-                  <button
-                    onClick={() => lesson.status !== 'locked' && navigate(`/lesson/${lesson.id}`)}
-                    disabled={lesson.status === 'locked'}
-                    className={`flex-1 bg-card rounded-[20px] p-5 shadow-md border border-border hover:shadow-lg transition-all ${
-                      lesson.status === 'locked' ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-1'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="text-left">
-                        <h3 className="font-semibold text-foreground mb-1">
-                          Lección {lesson.id}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          {lesson.title}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Zap className="w-4 h-4 text-warning" />
-                          <span className="text-sm font-medium text-warning">
-                            +{lesson.xp} XP
-                          </span>
-                        </div>
-                      </div>
-                      {lesson.status === 'completed' && (
-                        <div className="w-8 h-8 rounded-full bg-success flex items-center justify-center">
-                          <Check className="w-5 h-5 text-white" />
-                        </div>
-                      )}
-                    </div>
-                  </button>
+        ) : !currentSubject ? (
+          <div className="text-center py-10 text-muted-foreground">
+            No hay materias disponibles
+          </div>
+        ) : (
+          <>
+            <div className="bg-gradient-to-r from-primary to-blue-700 rounded-[20px] p-6 mb-8 shadow-lg">
+              <h2 className="text-white text-2xl font-bold mb-2">{currentSubject.name}</h2>
+              <p className="text-white/80 text-sm mb-4">{lessons.length} lecciones · {totalXP} XP total</p>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-white rounded-full" style={{ width: '14%' }}></div>
                 </div>
+                <span className="text-white text-sm">1/{lessons.length}</span>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-border"></div>
+
+              <div className="space-y-6">
+                {lessons.map((lesson, index) => (
+                  <div key={lesson.id} className="relative">
+                    <div className="flex items-start gap-4">
+                      <div className={`relative z-10 w-16 h-16 rounded-full border-4 ${getStatusColor(lesson.status)} flex items-center justify-center shadow-lg`}>
+                        {getStatusIcon(lesson.status)}
+                      </div>
+
+                      <button
+                        onClick={() => lesson.status !== 'locked' && navigate(`/lesson/${lesson.id}`)}
+                        disabled={lesson.status === 'locked'}
+                        className={`flex-1 bg-card rounded-[20px] p-5 shadow-md border border-border hover:shadow-lg transition-all ${lesson.status === 'locked' ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-1'
+                          }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="text-left">
+                            <h3 className="font-semibold text-foreground mb-1">
+                              Lección {index + 1}
+                            </h3>
+                            <p className="text-sm text-muted-foreground mb-2">
+                              {lesson.title}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <Zap className="w-4 h-4 text-warning" />
+                              <span className="text-sm font-medium text-warning">
+                                +{lesson.xp} XP
+                              </span>
+                            </div>
+                          </div>
+                          {lesson.status === 'completed' && (
+                            <div className="w-8 h-8 rounded-full bg-success flex items-center justify-center">
+                              <Check className="w-5 h-5 text-white" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
     </div>

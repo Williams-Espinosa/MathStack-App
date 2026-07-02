@@ -1,24 +1,46 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { User, Mail, Lock, Check } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/authService';
 
-interface RegisterProps {
-  onRegister: () => void;
-}
-
-export default function Register({ onRegister }: RegisterProps) {
+export default function Register() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === confirmPassword && acceptTerms) {
-      onRegister();
+    if (password !== confirmPassword) {
+      toast.error('Las contraseñas no coinciden.');
+      return;
+    }
+    if (!acceptTerms) {
+      toast.error('Debes aceptar los términos y condiciones.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await authService.register({ 
+        email, 
+        username, 
+        password,
+        accessLevel: 'STUDENT'
+      });
+      login(response);
+      toast.success('¡Cuenta creada con éxito!');
       navigate('/diagnostic');
+    } catch (error: any) {
+      toast.error(error.message || 'Error al registrar cuenta');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -147,10 +169,10 @@ export default function Register({ onRegister }: RegisterProps) {
 
               <button
                 type="submit"
-                disabled={!acceptTerms}
+                disabled={!acceptTerms || isSubmitting}
                 className="w-full bg-primary hover:bg-blue-700 disabled:bg-muted disabled:text-muted-foreground text-white py-4 rounded-[20px] font-medium transition-colors shadow-lg"
               >
-                Crear cuenta
+                {isSubmitting ? 'Creando cuenta...' : 'Crear cuenta'}
               </button>
             </form>
 

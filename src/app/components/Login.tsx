@@ -1,21 +1,35 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { Mail, Lock } from 'lucide-react';
-import { Link } from 'react-router';
+import { toast } from 'sonner';
+import { useAuth } from '../contexts/AuthContext';
+import { authService } from '../services/authService';
 
-interface LoginProps {
-  onLogin: () => void;
-}
-
-export default function Login({ onLogin }: LoginProps) {
+export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin();
-    navigate('/dashboard');
+    if (!email || !password) {
+      toast.error('Por favor, completa todos los campos.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await authService.login({ email, password });
+      login(response);
+      toast.success('¡Sesión iniciada con éxito!');
+      navigate('/dashboard');
+    } catch (error: any) {
+      toast.error(error.message || 'Error al iniciar sesión');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -102,9 +116,10 @@ export default function Login({ onLogin }: LoginProps) {
 
               <button
                 type="submit"
-                className="w-full bg-primary hover:bg-blue-700 text-white py-4 rounded-[20px] font-medium transition-colors shadow-lg"
+                disabled={isSubmitting}
+                className="w-full bg-primary hover:bg-blue-700 disabled:bg-muted disabled:text-muted-foreground text-white py-4 rounded-[20px] font-medium transition-colors shadow-lg"
               >
-                Iniciar sesión
+                {isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
               </button>
             </form>
 

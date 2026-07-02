@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import { useState, useEffect } from 'react';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { usePWASetup } from './hooks/usePWASetup';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import SplashScreen from './components/SplashScreen';
 import Onboarding from './components/Onboarding';
 import Login from './components/Login';
@@ -31,9 +32,9 @@ import ChallengeExercise from './components/ChallengeExercise';
 import Notifications from './components/Notifications';
 import InstallBanner from './components/InstallBanner';
 
-export default function App() {
+function AppRoutes() {
   const [showSplash, setShowSplash] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuthenticated, isLoading } = useAuth();
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
   const { prompt, install, canInstall, isIOS } = usePWAInstall();
   usePWASetup();
@@ -45,7 +46,7 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (showSplash) {
+  if (showSplash || isLoading) {
     return <SplashScreen />;
   }
 
@@ -60,8 +61,8 @@ export default function App() {
                 <Navigate to="/dashboard" />
           } />
           <Route path="/onboarding" element={<Onboarding onComplete={() => setHasSeenOnboarding(true)} />} />
-          <Route path="/login" element={<Login onLogin={() => setIsAuthenticated(true)} />} />
-          <Route path="/register" element={<Register onRegister={() => setIsAuthenticated(true)} />} />
+          <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />} />
+          <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/diagnostic" element={<DiagnosticTest />} />
           <Route path="/diagnostic-results" element={<DiagnosticResults />} />
@@ -76,7 +77,7 @@ export default function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/store" element={<Store />} />
-          <Route path="/settings" element={<Settings onLogout={() => setIsAuthenticated(false)} />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/account" element={<AccountManagement />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
@@ -88,5 +89,13 @@ export default function App() {
         </Routes>
       </div>
     </BrowserRouter>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
   );
 }

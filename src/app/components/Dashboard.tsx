@@ -1,15 +1,49 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Bell, Flame, Zap, Coins, BookOpen, ChevronRight, Award, User } from 'lucide-react';
 import BottomNav from './BottomNav';
+import { useAuth } from '../contexts/AuthContext';
+import { academicService } from '../services/academicService';
+import { practiceService } from '../services/practiceService';
+import { SubjectResponse } from '../types/api';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user, gamificationStats } = useAuth();
 
-  const subjects = [
-    { name: 'Álgebra', progress: 65, color: 'bg-blue-500', lessons: 12, total: 20 },
-    { name: 'Aritmética', progress: 45, color: 'bg-green-500', lessons: 9, total: 18 },
-    { name: 'Cálculo', progress: 30, color: 'bg-purple-500', lessons: 6, total: 15 }
-  ];
+  const [subjects, setSubjects] = useState<(SubjectResponse & { progress: number, lessons: number, total: number, color: string })[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        const subjectsData = await academicService.getSubjects();
+
+        // Mocking progress for now since the backend doesn't provide it in the subjects list
+        const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500'];
+        const subjectsWithProgress = subjectsData.map((sub, idx) => ({
+          ...sub,
+          progress: Math.floor(Math.random() * 50),
+          lessons: Math.floor(Math.random() * 5) + 1,
+          total: 10,
+          color: colors[idx % colors.length]
+        }));
+
+        setSubjects(subjectsWithProgress);
+
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, [user]);
+
+  const streak = gamificationStats?.currentStreak || 0;
+  const xp = gamificationStats?.xpPoints || 0;
+  const coins = gamificationStats?.coins || 0;
 
   return (
     <div className="size-full flex flex-col bg-background overflow-hidden">
@@ -22,7 +56,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="text-white/80 text-sm">Hola,</p>
-                <h2 className="text-white text-xl font-semibold">Estudiante</h2>
+                <h2 className="text-white text-xl font-semibold">{user?.username || 'Estudiante'}</h2>
               </div>
             </div>
             <button
@@ -39,21 +73,21 @@ export default function Dashboard() {
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-500/20 mb-2">
                 <Flame className="w-5 h-5 text-orange-400" />
               </div>
-              <p className="text-2xl font-bold text-white">7</p>
+              <p className="text-2xl font-bold text-white">{streak}</p>
               <p className="text-white/70 text-xs">Racha</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-4 border border-white/20">
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-500/20 mb-2">
                 <Zap className="w-5 h-5 text-yellow-400" />
               </div>
-              <p className="text-2xl font-bold text-white">1240</p>
+              <p className="text-2xl font-bold text-white">{xp}</p>
               <p className="text-white/70 text-xs">XP</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-[20px] p-4 border border-white/20">
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-yellow-500/20 mb-2">
                 <Coins className="w-5 h-5 text-warning" />
               </div>
-              <p className="text-2xl font-bold text-white">350</p>
+              <p className="text-2xl font-bold text-white">{coins}</p>
               <p className="text-white/70 text-xs">Monedas</p>
             </div>
           </div>
@@ -71,7 +105,7 @@ export default function Dashboard() {
                 </div>
                 <div className="text-left">
                   <h3 className="text-white font-bold text-lg">Continuar aprendiendo</h3>
-                  <p className="text-white text-sm">Ecuaciones lineales · 5 min</p>
+                  <p className="text-white text-sm">Lección sugerida · 5 min</p>
                 </div>
               </div>
               <ChevronRight className="w-6 h-6 text-white" />
@@ -89,25 +123,29 @@ export default function Dashboard() {
               </button>
             </div>
 
-            <div className="space-y-3">
-              {subjects.map((subject, index) => (
-                <div key={index} className="bg-card rounded-[20px] p-5 shadow-sm border border-border">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium text-foreground">{subject.name}</h4>
-                    <span className="text-sm text-muted-foreground">
-                      {subject.lessons}/{subject.total} lecciones
-                    </span>
+            {isLoading ? (
+              <div className="text-center py-4 text-muted-foreground">Cargando progreso...</div>
+            ) : (
+              <div className="space-y-3">
+                {subjects.map((subject, index) => (
+                  <div key={index} className="bg-card rounded-[20px] p-5 shadow-sm border border-border">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium text-foreground">{subject.name}</h4>
+                      <span className="text-sm text-muted-foreground">
+                        {subject.lessons}/{subject.total} lecciones
+                      </span>
+                    </div>
+                    <div className="relative w-full h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`absolute top-0 left-0 h-full ${subject.color} rounded-full transition-all duration-500`}
+                        style={{ width: `${subject.progress}%` }}
+                      ></div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">{subject.progress}% completado</p>
                   </div>
-                  <div className="relative w-full h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className={`absolute top-0 left-0 h-full ${subject.color} rounded-full transition-all duration-500`}
-                      style={{ width: `${subject.progress}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">{subject.progress}% completado</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <button

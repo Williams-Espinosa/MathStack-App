@@ -1,50 +1,69 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Coins, CheckCircle2, X, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import BottomNav from './BottomNav';
+import { useAuth } from '../contexts/AuthContext';
+import { storeService } from '../services/storeService';
+import { StoreItemResponse } from '../types/api';
+import { toast } from 'sonner';
 
-interface Avatar {
-  id: number;
-  name: string;
-  icon: string;
-  price: number;
+interface StoreItemUI extends StoreItemResponse {
   owned: boolean;
 }
 
-const INITIAL_AVATARS: Avatar[] = [
-  { id: 1, name: 'Avatar Científico', icon: '🧑‍🔬', price: 150, owned: false },
-  { id: 2, name: 'Avatar Estudiante', icon: '👨‍🎓', price: 100, owned: true },
-  { id: 3, name: 'Avatar Profesor', icon: '👨‍🏫', price: 200, owned: false },
-  { id: 4, name: 'Avatar Genio', icon: '🧠', price: 300, owned: false },
-  { id: 5, name: 'Avatar Matemático', icon: '🤓', price: 180, owned: false },
-  { id: 6, name: 'Avatar Artista', icon: '🎨', price: 220, owned: false },
-  { id: 7, name: 'Avatar Deportista', icon: '⚽', price: 150, owned: false },
-  { id: 8, name: 'Avatar Músico', icon: '🎵', price: 200, owned: false },
-  { id: 9, name: 'Avatar Chef', icon: '👨‍🍳', price: 170, owned: false },
-  { id: 10, name: 'Avatar Astronauta', icon: '👨‍🚀', price: 350, owned: false },
-  { id: 11, name: 'Avatar Ninja', icon: '🥷', price: 400, owned: false },
-  { id: 12, name: 'Avatar Robot', icon: '🤖', price: 500, owned: false },
-];
-
 export default function Store() {
-  const [avatars, setAvatars] = useState<Avatar[]>(INITIAL_AVATARS);
-  const [coins, setCoins] = useState(350);
-  const [pending, setPending] = useState<Avatar | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const { user, gamificationStats, refreshProfile } = useAuth();
 
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2800);
-  };
+  const [items, setItems] = useState<StoreItemUI[]>([]);
+  const [pending, setPending] = useState<StoreItemUI | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleBuy = () => {
-    if (!pending) return;
-    setAvatars((prev) =>
-      prev.map((a) => a.id === pending.id ? { ...a, owned: true } : a)
-    );
-    setCoins((c) => c - pending.price);
-    showToast(`¡"${pending.name}" añadido a tu inventario!`);
-    setPending(null);
+  useEffect(() => {
+    const loadStoreData = async () => {
+      if (!user) return;
+      try {
+        const [storeItems, inventory] = await Promise.all([
+          storeService.getItems(),
+          storeService.getInventory(user.id)
+        ]);
+
+        const inventorySet = new Set(inventory.map(inv => inv.itemId));
+
+        const itemsWithOwnership = storeItems.map(item => ({
+          ...item,
+          owned: inventorySet.has(item.id)
+        }));
+
+        setItems(itemsWithOwnership);
+      } catch (error) {
+        toast.error('Error al cargar la tienda');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadStoreData();
+  }, [user]);
+
+  const coins = gamificationStats?.coins || 0;
+
+  const handleBuy = async () => {
+    if (!pending || !user) return;
+
+    try {
+      await storeService.buyItem(user.id, pending.id);
+
+      setItems((prev) =>
+        prev.map((a) => a.id === pending.id ? { ...a, owned: true } : a)
+      );
+
+      await refreshProfile();
+
+      toast.success(`¡"${pending.name}" añadido a tu inventario!`);
+      setPending(null);
+    } catch (error: any) {
+      toast.error(error.message || 'Error al comprar el objeto');
+    }
   };
 
   return (
@@ -58,20 +77,6 @@ export default function Store() {
           </div>
         </div>
       </div>
-
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-green-600 text-white px-5 py-3 rounded-2xl shadow-lg flex items-center gap-2 text-sm font-medium"
-          >
-            <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-            {toast}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <AnimatePresence>
         {pending && (
@@ -103,22 +108,22 @@ export default function Store() {
 
                 <div className="flex items-center gap-4 bg-muted rounded-[20px] p-4 mb-5">
                   <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <span className="text-4xl">{pending.icon}</span>
+                    <span className="text-4xl">{pending.assetUrl || '🎁'}</span>
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{pending.name}</p>
                     <div className="flex items-center gap-1.5 mt-1">
                       <Coins className="w-4 h-4 text-warning" />
-                      <span className="text-warning font-bold">{pending.price} monedas</span>
+                      <span className="text-warning font-bold">{pending.cost} monedas</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Saldo restante: {coins - pending.price} monedas
+                      Saldo restante: {coins - pending.cost} monedas
                     </p>
                   </div>
                 </div>
 
                 <p className="text-sm text-muted-foreground text-center mb-5">
-                  ¿Seguro que quieres comprar este avatar?
+                  ¿Seguro que quieres comprar este artículo?
                 </p>
 
                 <div className="flex gap-3">
@@ -145,40 +150,46 @@ export default function Store() {
       <div className="flex-1 px-6 py-6">
         <p className="text-sm text-muted-foreground mb-4">Personaliza tu perfil con avatares únicos</p>
 
-        <div className="grid grid-cols-2 gap-4">
-          {avatars.map((item) => (
-            <div
-              key={item.id}
-              className={`rounded-[20px] p-5 shadow-md border transition-all ${item.owned ? 'bg-success/10 border-success' : 'bg-card border-border hover:shadow-lg'
-                }`}
-            >
-              <div className="aspect-square bg-gradient-to-br from-muted to-background rounded-[15px] flex items-center justify-center mb-3">
-                <span className="text-6xl">{item.icon}</span>
-              </div>
-
-              <h3 className="font-medium text-foreground mb-2 text-sm text-center">{item.name}</h3>
-
-              {item.owned ? (
-                <div className="bg-success text-success-foreground text-center py-2 rounded-full text-sm font-medium flex items-center justify-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" />
-                  En inventario
+        {isLoading ? (
+          <div className="text-center py-10 text-muted-foreground">Cargando tienda...</div>
+        ) : items.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground">No hay artículos disponibles en la tienda.</div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className={`rounded-[20px] p-5 shadow-md border transition-all ${item.owned ? 'bg-success/10 border-success' : 'bg-card border-border hover:shadow-lg'
+                  }`}
+              >
+                <div className="aspect-square bg-gradient-to-br from-muted to-background rounded-[15px] flex items-center justify-center mb-3">
+                  <span className="text-6xl">{item.assetUrl || '🎁'}</span>
                 </div>
-              ) : (
-                <button
-                  onClick={() => setPending(item)}
-                  disabled={coins < item.price}
-                  className={`w-full py-2 rounded-full text-sm font-medium transition-colors flex items-center justify-center gap-2 ${coins >= item.price
+
+                <h3 className="font-medium text-foreground mb-2 text-sm text-center truncate">{item.name}</h3>
+
+                {item.owned ? (
+                  <div className="bg-success text-success-foreground text-center py-2 rounded-full text-sm font-medium flex items-center justify-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" />
+                    En inventario
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setPending(item)}
+                    disabled={coins < item.cost}
+                    className={`w-full py-2 rounded-full text-sm font-medium transition-colors flex items-center justify-center gap-2 ${coins >= item.cost
                       ? 'bg-primary hover:bg-blue-700 text-white'
                       : 'bg-muted text-muted-foreground cursor-not-allowed'
-                    }`}
-                >
-                  <Coins className="w-4 h-4" />
-                  <span>{item.price}</span>
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+                      }`}
+                  >
+                    <Coins className="w-4 h-4" />
+                    <span>{item.cost}</span>
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {!pending && <BottomNav />}

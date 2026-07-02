@@ -1,27 +1,88 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Lightbulb, CheckCircle, XCircle, Zap } from 'lucide-react';
+import { toast } from 'sonner';
+import { academicService } from '../services/academicService';
+import { practiceService } from '../services/practiceService';
+import { useAuth } from '../contexts/AuthContext';
+import { ExerciseResponse } from '../types/api';
 
 export default function Exercise() {
   const navigate = useNavigate();
+  const { id: lessonId } = useParams();
+  const { user, refreshProfile } = useAuth();
+
+  const [exercises, setExercises] = useState<ExerciseResponse[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [answer, setAnswer] = useState('');
   const [showResult, setShowResult] = useState<'correct' | 'incorrect' | null>(null);
   const [showHint, setShowHint] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const question = {
-    text: 'Resuelve la ecuación: 3x - 7 = 14',
-    hint: 'Primero suma 7 a ambos lados, luego divide por 3',
-    correctAnswer: '7',
-    xpReward: 75
-  };
+  useEffect(() => {
+    const loadExercises = async () => {
+      if (!lessonId) return;
+      try {
+        const data = await academicService.getExercises(lessonId);
+        setExercises(data);
+      } catch (error) {
+        toast.error('Error al cargar los ejercicios');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadExercises();
+  }, [lessonId]);
 
-  const handleCheck = () => {
-    if (answer.trim() === question.correctAnswer) {
-      setShowResult('correct');
-    } else {
-      setShowResult('incorrect');
+  const currentExercise = exercises[currentIndex];
+  const correctAnswer = currentExercise?.conceptTested || '7';
+  const xpReward = 50;
+
+  const handleCheck = async () => {
+    if (!currentExercise || !user) return;
+
+    setIsSubmitting(true);
+    const isCorrect = answer.trim().toLowerCase() === correctAnswer.toLowerCase();
+
+    try {
+      await practiceService.registerAttempt(user.id, currentExercise.id, isCorrect);
+      setShowResult(isCorrect ? 'correct' : 'incorrect');
+      if (isCorrect) {
+        refreshProfile();
+      }
+    } catch (error) {
+      toast.error('Error al registrar intento');
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const handleNext = () => {
+    if (currentIndex < exercises.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setAnswer('');
+      setShowResult(null);
+      setShowHint(false);
+    } else {
+      toast.success('¡Has completado todos los ejercicios!');
+      navigate('/learning-path');
+    }
+  };
+
+  if (isLoading) {
+    return <div className="p-8 text-center text-muted-foreground">Cargando ejercicios...</div>;
+  }
+
+  if (!exercises.length) {
+    return (
+      <div className="p-8 text-center flex flex-col items-center">
+        <p className="text-muted-foreground mb-4">No hay ejercicios para esta lección.</p>
+        <button onClick={() => navigate(-1)} className="text-primary hover:underline">Volver</button>
+      </div>
+    );
+  }
 
   return (
     <div className="size-full flex flex-col bg-background">
@@ -32,7 +93,7 @@ export default function Exercise() {
           </button>
           <div className="flex items-center gap-2 bg-warning/10 px-4 py-2 rounded-full">
             <Zap className="w-4 h-4 text-warning" />
-            <span className="text-sm font-medium text-warning">+{question.xpReward} XP</span>
+            <span className="text-sm font-medium text-warning">+{xpReward} XP</span>
           </div>
         </div>
       </div>
@@ -41,17 +102,17 @@ export default function Exercise() {
         <div className="flex-1">
           <div className="mb-8">
             <h2 className="text-2xl font-semibold text-foreground mb-2">
-              Ejercicio 1
+              Ejercicio {currentIndex + 1} de {exercises.length}
             </h2>
             <p className="text-muted-foreground">
-              Resuelve la siguiente ecuación
+              Resuelve el siguiente ejercicio
             </p>
           </div>
 
           <div className="bg-card rounded-[20px] p-8 shadow-lg border border-border mb-6">
             <div className="text-center mb-6">
-              <p className="text-3xl font-mono text-foreground">
-                {question.text}
+              <p className="text-2xl font-mono text-foreground whitespace-pre-wrap">
+                {currentExercise.content}
               </p>
             </div>
 
@@ -63,7 +124,7 @@ export default function Exercise() {
                 onChange={(e) => setAnswer(e.target.value)}
                 placeholder="Tu respuesta"
                 className="flex-1 px-6 py-4 bg-background border-2 border-border rounded-[20px] text-xl text-center focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                disabled={showResult === 'correct'}
+                disabled={showResult === 'correct' || isSubmitting}
               />
             </div>
           </div>
@@ -74,23 +135,22 @@ export default function Exercise() {
                 <Lightbulb className="w-5 h-5 text-primary mt-0.5" />
                 <div>
                   <p className="font-medium text-primary mb-1">Pista</p>
-                  <p className="text-sm text-muted-foreground">{question.hint}</p>
+                  <p className="text-sm text-muted-foreground">Concepto evaluado: {currentExercise.conceptTested}</p>
                 </div>
               </div>
             </div>
           )}
 
           {showResult && (
-            <div className={`rounded-[20px] p-6 mb-6 ${
-              showResult === 'correct' ? 'bg-success/10 border-2 border-success' : 'bg-destructive/10 border-2 border-destructive'
-            }`}>
+            <div className={`rounded-[20px] p-6 mb-6 ${showResult === 'correct' ? 'bg-success/10 border-2 border-success' : 'bg-destructive/10 border-2 border-destructive'
+              }`}>
               <div className="flex items-center gap-3">
                 {showResult === 'correct' ? (
                   <>
                     <CheckCircle className="w-8 h-8 text-success" />
                     <div>
                       <p className="font-semibold text-success text-lg">¡Correcto!</p>
-                      <p className="text-sm text-muted-foreground">Has ganado {question.xpReward} XP</p>
+                      <p className="text-sm text-muted-foreground">Has ganado {xpReward} XP</p>
                     </div>
                   </>
                 ) : (
@@ -120,18 +180,18 @@ export default function Exercise() {
 
           {showResult === 'correct' ? (
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={handleNext}
               className="w-full bg-primary hover:bg-blue-700 text-white py-4 rounded-[20px] font-medium transition-colors shadow-lg"
             >
-              Continuar
+              {currentIndex < exercises.length - 1 ? 'Siguiente ejercicio' : 'Continuar'}
             </button>
           ) : (
             <button
               onClick={handleCheck}
-              disabled={!answer.trim()}
+              disabled={!answer.trim() || isSubmitting}
               className="w-full bg-primary hover:bg-blue-700 disabled:bg-muted disabled:text-muted-foreground text-white py-4 rounded-[20px] font-medium transition-colors shadow-lg"
             >
-              Comprobar respuesta
+              {isSubmitting ? 'Comprobando...' : 'Comprobar respuesta'}
             </button>
           )}
         </div>
