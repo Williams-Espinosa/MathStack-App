@@ -2,26 +2,52 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { User, Mail, Lock, Check, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/authService';
 
 export default function Register() {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState(() => sessionStorage.getItem('reg_username') || '');
+  const [email, setEmail] = useState(() => sessionStorage.getItem('reg_email') || '');
+  const [password, setPassword] = useState(() => sessionStorage.getItem('reg_password') || '');
+  const [confirmPassword, setConfirmPassword] = useState(() => sessionStorage.getItem('reg_confirmPassword') || '');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(() => sessionStorage.getItem('reg_acceptTerms') === 'true');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsSubmitting(true);
+      try {
+        const response = await authService.loginWithGoogle({ token: tokenResponse.access_token });
+        login(response);
+        toast.success('¡Cuenta creada con éxito!');
+        navigate('/diagnostic');
+      } catch (error: any) {
+        toast.error(error.message || 'Error al registrar con Google');
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    onError: () => toast.error('Error al conectar con Google'),
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard', { replace: true });
     }
-  }, []);
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    sessionStorage.setItem('reg_username', username);
+    sessionStorage.setItem('reg_email', email);
+    sessionStorage.setItem('reg_password', password);
+    sessionStorage.setItem('reg_confirmPassword', confirmPassword);
+    sessionStorage.setItem('reg_acceptTerms', acceptTerms.toString());
+  }, [username, email, password, confirmPassword, acceptTerms]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +76,11 @@ export default function Register() {
         accessLevel: 'STUDENT'
       });
       login(response);
+      sessionStorage.removeItem('reg_username');
+      sessionStorage.removeItem('reg_email');
+      sessionStorage.removeItem('reg_password');
+      sessionStorage.removeItem('reg_confirmPassword');
+      sessionStorage.removeItem('reg_acceptTerms');
       toast.success('¡Cuenta creada con éxito!');
       navigate('/diagnostic');
     } catch (error: any) {
@@ -75,7 +106,9 @@ export default function Register() {
           <div className="space-y-6">
             <button
               type="button"
-              className="w-full bg-card hover:bg-muted border border-border text-foreground py-4 rounded-[20px] font-medium transition-colors flex items-center justify-center gap-3 shadow-sm"
+              onClick={() => googleLogin()}
+              disabled={isSubmitting}
+              className="w-full bg-card hover:bg-muted border border-border text-foreground py-4 rounded-[20px] font-medium transition-colors flex items-center justify-center gap-3 shadow-sm disabled:opacity-50"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />

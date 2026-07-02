@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router';
 import { useState, useEffect } from 'react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { usePWASetup } from './hooks/usePWASetup';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -93,9 +94,13 @@ function AppRoutes() {
 }
 
 export default function App() {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'TU_GOOGLE_CLIENT_ID';
+  
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <GoogleOAuthProvider clientId={clientId}>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }

@@ -16,5 +16,9 @@ export const userService = {
 
   updateGamificationStats(id: string, data: any): Promise<GamificationStats> {
     return apiClient.patch<GamificationStats>(`/users/${id}/gamification-stats`, data);
+  },
+
+  registerPushToken(id: string, subscription: any): Promise<any> {
+    return apiClient.post(`/users/${id}/push-token`, subscription);
   }
 };

@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Bell, Moon, Globe, Clock, User, Lock, FileText, Info, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Bell, Moon, Globe, Clock, UserIcon, Lock, FileText, Info, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { pushService } from '../services/pushService';
+import { toast } from 'sonner';
 
 interface SettingsProps {
   onLogout?: () => void;
@@ -14,6 +17,20 @@ export default function Settings({ onLogout }: SettingsProps) {
   });
   const [reminders, setReminders] = useState(true);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleNotificationsChange = async (enabled: boolean) => {
+    setNotifications(enabled);
+    if (enabled && user) {
+      const success = await pushService.registerPushToken(user.id);
+      if (success) {
+        toast.success('Notificaciones push activadas');
+      } else {
+        setNotifications(false);
+        toast.error('No se pudieron activar las notificaciones');
+      }
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
@@ -28,14 +45,14 @@ export default function Settings({ onLogout }: SettingsProps) {
     {
       title: 'Preferencias',
       items: [
-        { icon: Bell, label: 'Notificaciones', hasToggle: true, value: notifications, onChange: setNotifications },
+        { icon: Bell, label: 'Notificaciones', hasToggle: true, value: notifications, onChange: handleNotificationsChange },
         { icon: Moon, label: 'Modo oscuro', hasToggle: true, value: darkMode, onChange: setDarkMode },
       ]
     },
     {
       title: 'Cuenta',
       items: [
-        { icon: User, label: 'Gestión de cuenta', path: '/account' },
+        { icon: UserIcon, label: 'Gestión de cuenta', path: '/account' },
         { icon: Lock, label: 'Privacidad', path: '/privacy' },
         { icon: FileText, label: 'Términos y condiciones', path: '/terms' }
       ]
