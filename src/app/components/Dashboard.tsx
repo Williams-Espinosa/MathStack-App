@@ -13,13 +13,13 @@ export default function Dashboard() {
 
   const [subjects, setSubjects] = useState<(SubjectResponse & { progress: number, lessons: number, total: number, color: string })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const hasUnreadNotifications = false;
 
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
         const subjectsData = await academicService.getSubjects();
 
-        // Mocking progress for now since the backend doesn't provide it in the subjects list
         const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500'];
         const subjectsWithProgress = subjectsData.map((sub, idx) => ({
           ...sub,
@@ -64,7 +64,9 @@ export default function Dashboard() {
               className="relative p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
             >
               <Bell className="w-6 h-6 text-white" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-warning rounded-full"></span>
+              {hasUnreadNotifications && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-warning rounded-full"></span>
+              )}
             </button>
           </div>
 
