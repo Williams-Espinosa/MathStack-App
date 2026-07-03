@@ -29,3 +29,21 @@ self.addEventListener('fetch', (e) => {
     )
   );
 });
+
+self.addEventListener('push', (e) => {
+  const data = e.data ? e.data.json() : {};
+  const title = data.title || 'MathStack';
+  const options = {
+    body: data.body || 'Tienes una nueva notificación.',
+    icon: '/icons/LogoFelizSinFondo.png',
+    badge: '/icons/LogoFelizSinFondo.png',
+    data: data.url || '/'
+  };
+
+  e.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  e.waitUntil(self.clients.openWindow(e.notification.data));
+});
