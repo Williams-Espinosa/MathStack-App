@@ -38,7 +38,6 @@ export default function Streak() {
 
   const calendar = Array.from({ length: 7 }, (_, i) => {
     const daysNames = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
-
     const daysAgo = todayDayOfWeek - i;
     const offset = isPracticedToday ? 0 : 1;
     let isActive = false;
@@ -184,7 +183,8 @@ export default function Streak() {
               ¡Sigue así y pronto superarás tu mejor marca!
             </p>
           </div>
-      )}
         </div>
-      );
+      )}
+    </div>
+  );
 }
