@@ -22,7 +22,20 @@ export default function Register() {
     onSuccess: async (tokenResponse) => {
       setIsSubmitting(true);
       try {
-        const response = await authService.loginWithGoogle({ token: tokenResponse.access_token });
+        const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const userInfo = await userInfoRes.json();
+
+        if (!userInfo.email) {
+          throw new Error('No se pudo obtener el email de Google');
+        }
+
+        const response = await authService.loginWithGoogle({ 
+          email: userInfo.email,
+          username: userInfo.name || userInfo.email.split('@')[0],
+          firebaseUid: userInfo.sub
+        });
         login(response);
         toast.success('¡Cuenta creada con éxito!');
         navigate('/diagnostic');
