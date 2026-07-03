@@ -1,11 +1,28 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Users, Plus, TrendingUp, Trophy } from 'lucide-react';
+import { ArrowLeft, Users, Plus, TrendingUp, Trophy, Loader2 } from 'lucide-react';
 import BottomNav from './BottomNav';
-
-const groups: any[] = [];
+import { groupService, GroupListResponse } from '../services/groupService';
+import { toast } from 'sonner';
 
 export default function Groups() {
   const navigate = useNavigate();
+  const [groups, setGroups] = useState<GroupListResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const data = await groupService.getGroups();
+        setGroups(data);
+      } catch (error) {
+        toast.error('Error al cargar grupos');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchGroups();
+  }, []);
 
   return (
     <div className="size-full flex flex-col bg-background overflow-auto pb-28">
@@ -35,47 +52,57 @@ export default function Groups() {
         </div>
 
         <div className="space-y-4 mb-6">
-          {groups.map((group) => (
-            <div key={group.id} className="bg-card rounded-[20px] shadow-md border border-border overflow-hidden hover:shadow-lg transition-shadow">
-              <div className={`h-24 bg-gradient-to-r ${group.color} p-5 flex items-center justify-between`}>
-                <div>
-                  <h3 className="text-white font-semibold text-lg mb-1">{group.name}</h3>
-                  <p className="text-white/80 text-sm">{group.subject} · {group.level}</p>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-              </div>
-
-              <div className="p-5">
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Miembros</p>
-                    <p className="text-xl font-semibold text-foreground">{group.members}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">Retos activos</p>
-                    <p className="text-xl font-semibold text-foreground">{group.activeChallenges}</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => navigate(`/groups/${group.id}`)}
-                    className="flex-1 bg-primary hover:bg-blue-700 text-white py-2 rounded-full text-sm font-medium transition-colors"
-                  >
-                    Ver grupo
-                  </button>
-                  <button
-                    onClick={() => navigate(`/groups/${group.id}`)}
-                    className="px-4 py-2 bg-muted hover:bg-accent text-foreground rounded-full text-sm font-medium transition-colors"
-                  >
-                    <Trophy className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
-          ))}
+          ) : groups.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Aún no perteneces a ningún grupo. ¡Crea uno para empezar!
+            </div>
+          ) : (
+            groups.map((group) => (
+              <div key={group.id} className="bg-card rounded-[20px] shadow-md border border-border overflow-hidden hover:shadow-lg transition-shadow">
+                <div className={`h-24 bg-gradient-to-r ${group.color} p-5 flex items-center justify-between`}>
+                  <div>
+                    <h3 className="text-white font-semibold text-lg mb-1">{group.name}</h3>
+                    <p className="text-white/80 text-sm">{group.subject}</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+
+                <div className="p-5">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Miembros</p>
+                      <p className="text-xl font-semibold text-foreground">{group.members} / {group.maxMembers}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Retos activos</p>
+                      <p className="text-xl font-semibold text-foreground">{group.activeChallenges}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/groups/${group.id}`)}
+                      className="flex-1 bg-primary hover:bg-blue-700 text-white py-2 rounded-full text-sm font-medium transition-colors"
+                    >
+                      Ver grupo
+                    </button>
+                    <button
+                      onClick={() => navigate(`/groups/${group.id}`)}
+                      className="px-4 py-2 bg-muted hover:bg-accent text-foreground rounded-full text-sm font-medium transition-colors"
+                    >
+                      <Trophy className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         <button

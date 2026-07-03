@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Users, BookOpen, Hash, Award } from 'lucide-react';
+import { ArrowLeft, Users, BookOpen, Hash, Award, Loader2 } from 'lucide-react';
+import { groupService } from '../services/groupService';
+import { toast } from 'sonner';
 
 export default function CreateGroup() {
   const [groupName, setGroupName] = useState('');
@@ -9,6 +11,8 @@ export default function CreateGroup() {
   const [maxMembers, setMaxMembers] = useState(20);
   const navigate = useNavigate();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const subjects = [
     { value: 'algebra', label: 'Álgebra' },
     { value: 'arithmetic', label: 'Aritmética' },
@@ -16,9 +20,25 @@ export default function CreateGroup() {
     { value: 'geometry', label: 'Geometría' }
   ];
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/groups');
+    if (isSubmitting) return;
+    
+    setIsSubmitting(true);
+    try {
+      await groupService.createGroup({
+        name: groupName,
+        description,
+        subject,
+        maxMembers
+      });
+      toast.success('¡Grupo creado exitosamente!');
+      navigate('/groups');
+    } catch (error) {
+      toast.error('Hubo un error al crear el grupo');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -124,8 +144,10 @@ export default function CreateGroup() {
 
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-blue-700 text-white py-4 rounded-[20px] font-medium transition-colors shadow-lg"
+            disabled={isSubmitting}
+            className="w-full bg-primary hover:bg-blue-700 disabled:bg-primary/50 text-white py-4 rounded-[20px] font-medium transition-colors shadow-lg flex items-center justify-center gap-2"
           >
+            {isSubmitting && <Loader2 className="w-5 h-5 animate-spin" />}
             Crear grupo
           </button>
         </form>

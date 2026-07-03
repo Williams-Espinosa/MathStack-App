@@ -1,85 +1,72 @@
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Users, Trophy, Medal, Crown, Flame, TrendingUp, Award } from 'lucide-react';
-import { useState } from 'react';
-
-const groupsData = {
-  '1': {
-    id: 1,
-    name: 'Matemáticas Avanzadas',
-    members: 24,
-    subject: 'Cálculo',
-    level: 'Avanzado',
-    activeChallenges: 3,
-    color: 'from-purple-500 to-purple-600',
-    totalXP: 45600,
-    members_list: [
-      { rank: 1, name: 'Ana Torres', level: 48, xp: 3200, streak: 21, badge: 'gold', completedLessons: 45 },
-      { rank: 2, name: 'Carlos Méndez', level: 45, xp: 2950, streak: 18, badge: 'silver', completedLessons: 42 },
-      { rank: 3, name: 'Laura Jiménez', level: 43, xp: 2800, streak: 25, badge: 'bronze', completedLessons: 40 },
-      { rank: 4, name: 'Pedro Sánchez', level: 42, xp: 2650, streak: 15, badge: null, completedLessons: 38 },
-      { rank: 5, name: 'Estudiante', level: 40, xp: 2500, streak: 7, badge: null, completedLessons: 35 },
-      { rank: 6, name: 'María López', level: 38, xp: 2300, streak: 12, badge: null, completedLessons: 33 },
-      { rank: 7, name: 'José Ramírez', level: 36, xp: 2100, streak: 9, badge: null, completedLessons: 30 },
-      { rank: 8, name: 'Carmen Silva', level: 35, xp: 1950, streak: 14, badge: null, completedLessons: 28 }
-    ]
-  },
-  '2': {
-    id: 2,
-    name: 'Álgebra para Todos',
-    members: 45,
-    subject: 'Álgebra',
-    level: 'Intermedio',
-    activeChallenges: 5,
-    color: 'from-blue-500 to-blue-600',
-    totalXP: 38200,
-    members_list: [
-      { rank: 1, name: 'Roberto Díaz', level: 38, xp: 2100, streak: 28, badge: 'gold', completedLessons: 35 },
-      { rank: 2, name: 'Elena Vargas', level: 36, xp: 1980, streak: 22, badge: 'silver', completedLessons: 32 },
-      { rank: 3, name: 'Miguel Ángel', level: 35, xp: 1850, streak: 19, badge: 'bronze', completedLessons: 30 },
-      { rank: 4, name: 'Sofía Ruiz', level: 33, xp: 1720, streak: 16, badge: null, completedLessons: 28 },
-      { rank: 5, name: 'Estudiante', level: 32, xp: 1650, streak: 7, badge: null, completedLessons: 26 }
-    ]
-  },
-  '3': {
-    id: 3,
-    name: 'Aritmética Básica',
-    members: 67,
-    subject: 'Aritmética',
-    level: 'Principiante',
-    activeChallenges: 2,
-    color: 'from-green-500 to-green-600',
-    totalXP: 52400,
-    members_list: [
-      { rank: 1, name: 'Lucía Fernández', level: 25, xp: 1400, streak: 35, badge: 'gold', completedLessons: 22 },
-      { rank: 2, name: 'Diego Castro', level: 24, xp: 1320, streak: 29, badge: 'silver', completedLessons: 20 },
-      { rank: 3, name: 'Valentina Ortiz', level: 23, xp: 1250, streak: 24, badge: 'bronze', completedLessons: 19 },
-      { rank: 4, name: 'Estudiante', level: 22, xp: 1180, streak: 7, badge: null, completedLessons: 18 },
-      { rank: 5, name: 'Gabriel Moreno', level: 21, xp: 1100, streak: 15, badge: null, completedLessons: 17 }
-    ]
-  }
-};
-
-const globalRankings = [
-  { rank: 1, name: 'María González', level: 45, xp: 12400, streak: 28, badge: 'gold' },
-  { rank: 2, name: 'Carlos Ramírez', level: 42, xp: 11800, streak: 21, badge: 'silver' },
-  { rank: 3, name: 'Ana Martínez', level: 40, xp: 10950, streak: 35, badge: 'bronze' },
-  { rank: 4, name: 'Luis Fernández', level: 38, xp: 9800, streak: 14, badge: null },
-  { rank: 5, name: 'Estudiante', level: 35, xp: 9240, streak: 7, badge: null },
-  { rank: 6, name: 'Laura Silva', level: 33, xp: 8650, streak: 19, badge: null },
-  { rank: 7, name: 'Pedro Jiménez', level: 31, xp: 8100, streak: 12, badge: null },
-  { rank: 8, name: 'Sofia Torres', level: 30, xp: 7890, streak: 8, badge: null }
-];
+import { ArrowLeft, Users, Trophy, Medal, Crown, Flame, TrendingUp, Award, UserPlus, X, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { groupService, GroupDetailsResponse } from '../services/groupService';
+import { toast } from 'sonner';
 
 export default function GroupDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [rankingTab, setRankingTab] = useState<'group' | 'global'>('group');
+  const [group, setGroup] = useState<GroupDetailsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteIdentifier, setInviteIdentifier] = useState('');
+  const [isInviting, setIsInviting] = useState(false);
 
-  const group = groupsData[id as keyof typeof groupsData];
+  const fetchGroup = async () => {
+    if (!id) return;
+    try {
+      const data = await groupService.getGroupDetails(id);
+      setGroup(data);
+    } catch (error) {
+      toast.error('Error al cargar detalles del grupo');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroup();
+  }, [id]);
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id || !inviteIdentifier.trim() || isInviting) return;
+
+    setIsInviting(true);
+    try {
+      await groupService.addMember(id, inviteIdentifier);
+      toast.success('Miembro añadido exitosamente');
+      setInviteIdentifier('');
+      setShowInviteModal(false);
+      fetchGroup(); // Refrescar lista
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Error al añadir al miembro. Verifica si existe el usuario o si ya está en el grupo.');
+    } finally {
+      setIsInviting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="size-full flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!group) {
-    return <div>Grupo no encontrado</div>;
+    return (
+      <div className="size-full flex flex-col items-center justify-center bg-background gap-4">
+        <p className="text-muted-foreground">Grupo no encontrado</p>
+        <button onClick={() => navigate('/groups')} className="text-primary hover:underline">
+          Volver a Mis Grupos
+        </button>
+      </div>
+    );
   }
+
 
   const getBadgeColor = (badge: string | null) => {
     if (badge === 'gold') return 'text-warning';
@@ -142,7 +129,7 @@ export default function GroupDetail() {
                   <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/20 mb-2">
                     <Users className="w-4 h-4 text-white" />
                   </div>
-                  <p className="text-xl font-bold text-white">{group.members}</p>
+                  <p className="text-xl font-bold text-white">{group.members.length} / {group.maxMembers}</p>
                   <p className="text-white/80 text-xs">Miembros</p>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm rounded-[16px] p-3 border border-white/20">
@@ -162,42 +149,56 @@ export default function GroupDetail() {
               </div>
             </div>
 
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-foreground mb-1">Miembros del Grupo</h3>
-              <p className="text-sm text-muted-foreground">Ranking por XP acumulado</p>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-1">Miembros del Grupo</h3>
+                <p className="text-sm text-muted-foreground">Ranking por XP acumulado</p>
+              </div>
+              {group.members.length < group.maxMembers && (
+                <button 
+                  onClick={() => setShowInviteModal(true)}
+                  className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium hover:bg-primary/20 transition-colors"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Invitar
+                </button>
+              )}
             </div>
 
             <div className="space-y-3">
-              {group.members_list.map((member) => (
+              {group.members.map((member, idx) => {
+                const rank = idx + 1;
+                const badge = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : null;
+                return (
                 <div
-                  key={member.rank}
-                  className={`bg-card rounded-[20px] p-5 shadow-md border hover:shadow-lg transition-shadow ${
-                    member.name === 'Estudiante' ? 'border-primary border-2' : 'border-border'
-                  }`}
+                  key={member.userId}
+                  className={`bg-card rounded-[20px] p-5 shadow-md border hover:shadow-lg transition-shadow border-border`}
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                      member.rank === 1 ? 'bg-warning/20' :
-                      member.rank === 2 ? 'bg-gray-200 dark:bg-gray-700' :
-                      member.rank === 3 ? 'bg-orange-100 dark:bg-orange-900/30' :
+                      rank === 1 ? 'bg-warning/20' :
+                      rank === 2 ? 'bg-gray-200 dark:bg-gray-700' :
+                      rank === 3 ? 'bg-orange-100 dark:bg-orange-900/30' :
                       'bg-muted'
                     }`}>
-                      {member.rank === 1 ? (
+                      {rank === 1 ? (
                         <Crown className="w-6 h-6 text-warning" />
                       ) : (
-                        <span className={getBadgeColor(member.badge)}>#{member.rank}</span>
+                        <span className={getBadgeColor(badge)}>#{rank}</span>
                       )}
                     </div>
 
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className={`font-semibold ${member.name === 'Estudiante' ? 'text-primary' : 'text-foreground'}`}>
-                          {member.name}
-                          {member.name === 'Estudiante' && <span className="text-xs ml-1">(Tú)</span>}
+                        <h3 className="font-semibold text-foreground">
+                          {member.username}
                         </h3>
-                        {member.badge && (
-                          <Medal className={`w-4 h-4 ${getBadgeColor(member.badge)}`} />
+                        {badge && (
+                          <Medal className={`w-4 h-4 ${getBadgeColor(badge)}`} />
                         )}
+                        <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground ml-2">
+                          {member.role === 'CREATOR' ? 'Creador' : 'Miembro'}
+                        </span>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span>Nivel {member.level}</span>
@@ -206,8 +207,6 @@ export default function GroupDetail() {
                           <Flame className="w-3 h-3 text-orange-500" />
                           {member.streak} días
                         </span>
-                        <span>·</span>
-                        <span>{member.completedLessons} lecciones</span>
                       </div>
                     </div>
 
@@ -217,7 +216,7 @@ export default function GroupDetail() {
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </>
         ) : (
@@ -240,58 +239,54 @@ export default function GroupDetail() {
             </div>
 
             <div className="space-y-3">
-              {globalRankings.map((player) => (
-                <div
-                  key={player.rank}
-                  className={`bg-card rounded-[20px] p-5 shadow-md border hover:shadow-lg transition-shadow ${
-                    player.name === 'Estudiante' ? 'border-primary border-2' : 'border-border'
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                      player.rank === 1 ? 'bg-warning/20' :
-                      player.rank === 2 ? 'bg-gray-200 dark:bg-gray-700' :
-                      player.rank === 3 ? 'bg-orange-100 dark:bg-orange-900/30' :
-                      'bg-muted'
-                    }`}>
-                      {player.rank === 1 ? (
-                        <Crown className="w-6 h-6 text-warning" />
-                      ) : (
-                        <span className={getBadgeColor(player.badge)}>#{player.rank}</span>
-                      )}
-                    </div>
+              <div className="text-center py-8 text-muted-foreground">
+                El ranking global real pronto estará disponible.
+              </div>
 
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className={`font-semibold ${player.name === 'Estudiante' ? 'text-primary' : 'text-foreground'}`}>
-                          {player.name}
-                          {player.name === 'Estudiante' && <span className="text-xs ml-1">(Tú)</span>}
-                        </h3>
-                        {player.badge && (
-                          <Medal className={`w-4 h-4 ${getBadgeColor(player.badge)}`} />
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span>Nivel {player.level}</span>
-                        <span>·</span>
-                        <span className="flex items-center gap-1">
-                          <Flame className="w-3 h-3 text-orange-500" />
-                          {player.streak} días de racha
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="font-bold text-primary text-lg">{player.xp.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">XP</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </>
         )}
       </div>
+
+    {showInviteModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+          <div className="bg-card w-full max-w-sm rounded-[24px] p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <button 
+              onClick={() => setShowInviteModal(false)}
+              className="absolute top-4 right-4 p-2 text-muted-foreground hover:bg-muted rounded-full transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            
+            <h2 className="text-xl font-bold text-foreground mb-2">Añadir miembro</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Busca al usuario por su correo electrónico o su nombre de usuario exacto.
+            </p>
+            
+            <form onSubmit={handleInvite}>
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="ej: usuario@email.com o NombreUsuario"
+                  className="w-full px-4 py-3 bg-muted border-none rounded-[16px] focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
+                  value={inviteIdentifier}
+                  onChange={(e) => setInviteIdentifier(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              
+              <button
+                type="submit"
+                disabled={isInviting || !inviteIdentifier.trim()}
+                className="w-full py-3 bg-primary text-white rounded-[16px] font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              >
+                {isInviting && <Loader2 className="w-4 h-4 animate-spin" />}
+                Añadir al grupo
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );
