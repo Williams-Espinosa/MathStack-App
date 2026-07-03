@@ -1,20 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Trophy, Medal, Award, User } from 'lucide-react';
+import { ArrowLeft, Trophy, Medal, Award } from 'lucide-react';
 import BottomNav from './BottomNav';
-
-const leaderboardData = [
-  { rank: 1, name: 'Ana García', xp: 8450, coins: 2340, lessons: 45, avatar: '👩‍🎓' },
-  { rank: 2, name: 'Carlos López', xp: 7890, coins: 2100, lessons: 42, avatar: '👨‍🎓' },
-  { rank: 3, name: 'María Rodríguez', xp: 7320, coins: 1980, lessons: 40, avatar: '👩‍🎓' },
-  { rank: 4, name: 'Tú', xp: 1240, coins: 350, lessons: 12, avatar: '👤', isCurrentUser: true },
-  { rank: 5, name: 'Pedro Martínez', xp: 980, coins: 280, lessons: 10, avatar: '👨‍🎓' },
-  { rank: 6, name: 'Laura Sánchez', xp: 870, coins: 240, lessons: 9, avatar: '👩‍🎓' }
-];
+import { userService } from '../services/userService';
+import { UserProfileResponse } from '../types/api';
 
 export default function Leaderboard() {
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
+  const [leaderboardData, setLeaderboardData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        try {
+          const profile = await userService.getProfile();
+          setCurrentUserId(profile.user.id);
+        } catch (e) {
+          console.error('Error fetching profile:', e);
+        }
+
+        const data = await userService.getLeaderboard(20);
+
+        const mappedData = data.map((profile, index) => ({
+          rank: index + 1,
+          name: profile.user.username,
+          xp: profile.gamificationStats.xpPoints,
+          coins: profile.gamificationStats.coins,
+          lessons: profile.gamificationStats.lessonsCompletedCount,
+          avatar: index % 2 === 0 ? '👩‍🎓' : '👨‍🎓', // Alternate avatars as fallback
+          isCurrentUser: profile.user.id === currentUserId
+        }));
+
+        setLeaderboardData(mappedData);
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [currentUserId]);
 
   const getPodiumIcon = (rank: number) => {
     if (rank === 1) return <Trophy className="w-8 h-8 text-warning" />;
@@ -37,25 +67,22 @@ export default function Leaderboard() {
         <div className="flex gap-2 bg-muted p-1 rounded-full">
           <button
             onClick={() => setActiveTab('daily')}
-            className={`flex-1 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'daily' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
-            }`}
+            className={`flex-1 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'daily' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+              }`}
           >
             Diaria
           </button>
           <button
             onClick={() => setActiveTab('weekly')}
-            className={`flex-1 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'weekly' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
-            }`}
+            className={`flex-1 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'weekly' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+              }`}
           >
             Semanal
           </button>
           <button
             onClick={() => setActiveTab('monthly')}
-            className={`flex-1 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeTab === 'monthly' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
-            }`}
+            className={`flex-1 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'monthly' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+              }`}
           >
             Mensual
           </button>
@@ -63,59 +90,69 @@ export default function Leaderboard() {
       </div>
 
       <div className="flex-1 px-6 py-6">
-        <div className="flex items-end justify-center gap-4 mb-8">
-          {[leaderboardData[1], leaderboardData[0], leaderboardData[2]].map((user, index) => {
-            const actualRank = user.rank;
-            const heights = ['h-28', 'h-36', 'h-24'];
-            const bgColors = ['from-gray-300 to-gray-400', 'from-warning to-yellow-500', 'from-orange-400 to-orange-500'];
+        {loading ? (
+          <div className="flex justify-center items-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : leaderboardData.length === 0 ? (
+          <div className="text-center text-muted-foreground mt-10">No hay datos disponibles</div>
+        ) : (
+          <>
+            <div className="flex items-end justify-center gap-4 mb-8">
+              {[leaderboardData[1], leaderboardData[0], leaderboardData[2]].map((user, index) => {
+                if (!user) return <div key={`empty-${index}`} className="flex-1"></div>;
+                const actualRank = user.rank;
+                const heights = ['h-28', 'h-36', 'h-24'];
+                const bgColors = ['from-gray-300 to-gray-400', 'from-warning to-yellow-500', 'from-orange-400 to-orange-500'];
 
-            return (
-              <div key={user.rank} className="flex-1 flex flex-col items-center">
-                <div className="text-4xl mb-2">{user.avatar}</div>
-                <p className="text-xs font-medium text-foreground mb-2 text-center truncate w-full px-1">
-                  {user.name.split(' ')[0]}
-                </p>
-                <div className={`w-full ${heights[index]} bg-gradient-to-b ${bgColors[index]} rounded-t-[20px] flex flex-col items-center justify-start pt-3 shadow-lg`}>
-                  <div className="mb-2">
-                    {getPodiumIcon(actualRank)}
+                return (
+                  <div key={user.rank} className="flex-1 flex flex-col items-center">
+                    <div className="text-4xl mb-2">{user.avatar}</div>
+                    <p className="text-xs font-medium text-foreground mb-2 text-center truncate w-full px-1">
+                      {user.name.split(' ')[0]}
+                    </p>
+                    <div className={`w-full ${heights[index]} bg-gradient-to-b ${bgColors[index]} rounded-t-[20px] flex flex-col items-center justify-start pt-3 shadow-lg`}>
+                      <div className="mb-2">
+                        {getPodiumIcon(actualRank)}
+                      </div>
+                      <p className="text-white font-bold text-lg">{user.xp}</p>
+                      <p className="text-white/80 text-xs">XP</p>
+                    </div>
                   </div>
-                  <p className="text-white font-bold text-lg">{user.xp}</p>
-                  <p className="text-white/80 text-xs">XP</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="space-y-3">
-          {leaderboardData.slice(3).map((user) => (
-            <div
-              key={user.rank}
-              className={`rounded-[20px] p-4 shadow-sm border transition-all ${
-                user.isCurrentUser
-                  ? 'bg-primary/10 border-primary'
-                  : 'bg-card border-border'
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 text-center">
-                  <span className="text-xl font-bold text-foreground">#{user.rank}</span>
-                </div>
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl">
-                  {user.avatar}
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-foreground">{user.name}</p>
-                  <p className="text-sm text-muted-foreground">{user.lessons} lecciones</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-foreground">{user.xp}</p>
-                  <p className="text-xs text-muted-foreground">XP</p>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
+
+            <div className="space-y-3">
+              {leaderboardData.slice(3).map((user) => (
+                <div
+                  key={user.rank}
+                  className={`rounded-[20px] p-4 shadow-sm border transition-all ${user.isCurrentUser
+                      ? 'bg-primary/10 border-primary'
+                      : 'bg-card border-border'
+                    }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 text-center">
+                      <span className="text-xl font-bold text-foreground">#{user.rank}</span>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl">
+                      {user.avatar}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">{user.name}</p>
+                      <p className="text-sm text-muted-foreground">{user.lessons} lecciones</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-foreground">{user.xp}</p>
+                      <p className="text-xs text-muted-foreground">XP</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       <BottomNav />

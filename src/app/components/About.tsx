@@ -49,7 +49,6 @@ export default function About() {
           <div className="grid grid-cols-2 gap-3">
             {team.map((member, index) => (
               <div key={index} className="bg-card rounded-[20px] p-4 shadow-sm border border-border text-center">
-                <div className="text-4xl mb-2">{member.icon}</div>
                 <h4 className="font-medium text-foreground text-sm mb-1">{member.name}</h4>
                 <p className="text-xs text-muted-foreground">{member.role}</p>
               </div>

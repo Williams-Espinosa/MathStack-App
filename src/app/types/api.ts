@@ -45,6 +45,7 @@ export interface LessonResponse {
   lessonTypeId: number;
   title: string;
   difficultyLevel: number;
+  content?: string;
 }
 
 export interface ExerciseResponse {

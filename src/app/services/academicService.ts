@@ -14,6 +14,10 @@ export const academicService = {
     return apiClient.get<LessonResponse[]>(`/academic/subjects/${subjectId}/lessons`);
   },
 
+  getLessonById(lessonId: string): Promise<LessonResponse> {
+    return apiClient.get<LessonResponse>(`/academic/lessons/${lessonId}`);
+  },
+
   getExercises(lessonId: string): Promise<ExerciseResponse[]> {
     return apiClient.get<ExerciseResponse[]>(`/academic/lessons/${lessonId}/exercises`);
   }

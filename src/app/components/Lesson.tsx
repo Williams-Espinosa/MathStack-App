@@ -1,27 +1,15 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Clock, ChevronRight, BookOpen } from 'lucide-react';
+import { academicService } from '../services/academicService';
+import { LessonResponse } from '../types/api';
 
-const lessonContent = {
-  title: 'Ecuaciones lineales',
+const defaultContent = {
   estimatedTime: '15 min',
   sections: [
     {
       type: 'intro',
-      content: 'Una ecuación lineal es una igualdad que involucra una o más variables elevadas a la primera potencia.'
-    },
-    {
-      type: 'example',
-      title: 'Ejemplo 1',
-      content: 'Resuelve: 2x + 5 = 13',
-      steps: [
-        'Resta 5 de ambos lados: 2x = 8',
-        'Divide ambos lados por 2: x = 4'
-      ]
-    },
-    {
-      type: 'concept',
-      title: 'Propiedad de igualdad',
-      content: 'Lo que hagas a un lado de la ecuación, debes hacerlo al otro lado para mantener el balance.'
+      content: 'Contenido teórico no disponible para esta lección.'
     }
   ]
 };
@@ -30,6 +18,56 @@ export default function Lesson() {
   const navigate = useNavigate();
   const { id } = useParams();
   const progress = 60;
+
+  const [lesson, setLesson] = useState<LessonResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [parsedContent, setParsedContent] = useState(defaultContent);
+
+  useEffect(() => {
+    const fetchLesson = async () => {
+      if (!id) return;
+      try {
+        setLoading(true);
+        const data = await academicService.getLessonById(id);
+        setLesson(data);
+
+        if (data.content) {
+          try {
+            const parsed = JSON.parse(data.content);
+            setParsedContent({
+              ...defaultContent,
+              ...parsed
+            });
+          } catch (e) {
+            console.error('Error parsing lesson content JSON:', e);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching lesson:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLesson();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="size-full flex flex-col bg-background justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!lesson) {
+    return (
+      <div className="size-full flex flex-col bg-background p-6">
+        <div className="text-center text-muted-foreground mt-10">Lección no encontrada</div>
+        <button onClick={() => navigate('/learning-path')} className="mt-4 text-primary underline">Volver</button>
+      </div>
+    );
+  }
 
   return (
     <div className="size-full flex flex-col bg-background overflow-auto">
@@ -40,7 +78,7 @@ export default function Lesson() {
           </button>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="w-4 h-4" />
-            <span>{lessonContent.estimatedTime}</span>
+            <span>{parsedContent.estimatedTime}</span>
           </div>
         </div>
         <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
@@ -58,13 +96,13 @@ export default function Lesson() {
               <BookOpen className="w-6 h-6 text-primary" />
             </div>
             <h1 className="text-3xl font-bold text-foreground">
-              {lessonContent.title}
+              {lesson.title}
             </h1>
           </div>
         </div>
 
         <div className="space-y-6">
-          {lessonContent.sections.map((section, index) => (
+          {parsedContent.sections.map((section: any, index: number) => (
             <div key={index} className="bg-card rounded-[20px] p-6 shadow-sm border border-border">
               {section.title && (
                 <h3 className="font-semibold text-foreground mb-3">{section.title}</h3>
@@ -74,10 +112,9 @@ export default function Lesson() {
               </p>
               {section.steps && (
                 <div className="space-y-2 pl-4 border-l-2 border-primary">
-                  {section.steps.map((step, idx) => (
-                    <p key={idx} className="text-sm text-foreground">
-                      {idx + 1}. {step}
-                    </p>
+                  {section.steps.map((step: string, idx: number) => (<p key={idx} className="text-sm text-foreground">
+                    {idx + 1}. {step}
+                  </p>
                   ))}
                 </div>
               )}

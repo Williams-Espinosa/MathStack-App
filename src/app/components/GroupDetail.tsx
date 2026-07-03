@@ -40,7 +40,7 @@ export default function GroupDetail() {
       toast.success('Miembro añadido exitosamente');
       setInviteIdentifier('');
       setShowInviteModal(false);
-      fetchGroup(); // Refrescar lista
+      fetchGroup();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error al añadir al miembro. Verifica si existe el usuario o si ya está en el grupo.');
     } finally {
@@ -89,21 +89,19 @@ export default function GroupDetail() {
         <div className="flex gap-2">
           <button
             onClick={() => setRankingTab('group')}
-            className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
-              rankingTab === 'group'
+            className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${rankingTab === 'group'
                 ? 'bg-primary text-white'
                 : 'bg-muted text-muted-foreground hover:bg-accent'
-            }`}
+              }`}
           >
             Ranking Grupo
           </button>
           <button
             onClick={() => setRankingTab('global')}
-            className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
-              rankingTab === 'global'
+            className={`flex-1 py-2 px-4 rounded-full text-sm font-medium transition-colors ${rankingTab === 'global'
                 ? 'bg-primary text-white'
                 : 'bg-muted text-muted-foreground hover:bg-accent'
-            }`}
+              }`}
           >
             Ranking Global
           </button>
@@ -120,7 +118,7 @@ export default function GroupDetail() {
                 </div>
                 <div>
                   <h2 className="text-white text-xl font-bold">{group.name}</h2>
-                  <p className="text-white text-sm">{group.subject} · {group.level}</p>
+                  <p className="text-white text-sm">{group.subject}</p>
                 </div>
               </div>
 
@@ -143,7 +141,7 @@ export default function GroupDetail() {
                   <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-500/20 mb-2">
                     <TrendingUp className="w-4 h-4 text-success" />
                   </div>
-                  <p className="text-xl font-bold text-white">{group.totalXP.toLocaleString()}</p>
+                  <p className="text-xl font-bold text-white">{group.totalXp.toLocaleString()}</p>
                   <p className="text-white/80 text-xs">XP Total</p>
                 </div>
               </div>
@@ -155,7 +153,7 @@ export default function GroupDetail() {
                 <p className="text-sm text-muted-foreground">Ranking por XP acumulado</p>
               </div>
               {group.members.length < group.maxMembers && (
-                <button 
+                <button
                   onClick={() => setShowInviteModal(true)}
                   className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium hover:bg-primary/20 transition-colors"
                 >
@@ -170,53 +168,53 @@ export default function GroupDetail() {
                 const rank = idx + 1;
                 const badge = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : null;
                 return (
-                <div
-                  key={member.userId}
-                  className={`bg-card rounded-[20px] p-5 shadow-md border hover:shadow-lg transition-shadow border-border`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                      rank === 1 ? 'bg-warning/20' :
-                      rank === 2 ? 'bg-gray-200 dark:bg-gray-700' :
-                      rank === 3 ? 'bg-orange-100 dark:bg-orange-900/30' :
-                      'bg-muted'
-                    }`}>
-                      {rank === 1 ? (
-                        <Crown className="w-6 h-6 text-warning" />
-                      ) : (
-                        <span className={getBadgeColor(badge)}>#{rank}</span>
-                      )}
-                    </div>
-
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-foreground">
-                          {member.username}
-                        </h3>
-                        {badge && (
-                          <Medal className={`w-4 h-4 ${getBadgeColor(badge)}`} />
+                  <div
+                    key={member.userId}
+                    className={`bg-card rounded-[20px] p-5 shadow-md border hover:shadow-lg transition-shadow border-border`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${rank === 1 ? 'bg-warning/20' :
+                          rank === 2 ? 'bg-gray-200 dark:bg-gray-700' :
+                            rank === 3 ? 'bg-orange-100 dark:bg-orange-900/30' :
+                              'bg-muted'
+                        }`}>
+                        {rank === 1 ? (
+                          <Crown className="w-6 h-6 text-warning" />
+                        ) : (
+                          <span className={getBadgeColor(badge)}>#{rank}</span>
                         )}
-                        <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground ml-2">
-                          {member.role === 'CREATOR' ? 'Creador' : 'Miembro'}
-                        </span>
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span>Nivel {member.level}</span>
-                        <span>·</span>
-                        <span className="flex items-center gap-1">
-                          <Flame className="w-3 h-3 text-orange-500" />
-                          {member.streak} días
-                        </span>
-                      </div>
-                    </div>
 
-                    <div className="text-right">
-                      <p className="font-bold text-primary text-lg">{member.xp.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">XP</p>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-foreground">
+                            {member.username}
+                          </h3>
+                          {badge && (
+                            <Medal className={`w-4 h-4 ${getBadgeColor(badge)}`} />
+                          )}
+                          <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground ml-2">
+                            {member.role === 'CREATOR' ? 'Creador' : 'Miembro'}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span>Nivel {member.level}</span>
+                          <span>·</span>
+                          <span className="flex items-center gap-1">
+                            <Flame className="w-3 h-3 text-orange-500" />
+                            {member.streak} días
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="font-bold text-primary text-lg">{member.xp.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">XP</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )})}
+                )
+              })}
             </div>
           </>
         ) : (
@@ -248,21 +246,21 @@ export default function GroupDetail() {
         )}
       </div>
 
-    {showInviteModal && (
+      {showInviteModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
           <div className="bg-card w-full max-w-sm rounded-[24px] p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
-            <button 
+            <button
               onClick={() => setShowInviteModal(false)}
               className="absolute top-4 right-4 p-2 text-muted-foreground hover:bg-muted rounded-full transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
-            
+
             <h2 className="text-xl font-bold text-foreground mb-2">Añadir miembro</h2>
             <p className="text-sm text-muted-foreground mb-6">
               Busca al usuario por su correo electrónico o su nombre de usuario exacto.
             </p>
-            
+
             <form onSubmit={handleInvite}>
               <div className="mb-4">
                 <input
@@ -274,7 +272,7 @@ export default function GroupDetail() {
                   autoFocus
                 />
               </div>
-              
+
               <button
                 type="submit"
                 disabled={isInviting || !inviteIdentifier.trim()}

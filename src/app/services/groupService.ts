@@ -1,4 +1,4 @@
-import { api } from './api';
+import { apiClient } from './api';
 
 export interface GroupListResponse {
   id: string;
@@ -41,8 +41,8 @@ export interface CreateGroupRequest {
 export const groupService = {
   async getGroups(): Promise<GroupListResponse[]> {
     try {
-      const response = await api.get('/social/groups');
-      return response.data;
+      const response = await apiClient.get<GroupListResponse[]>('/social/groups');
+      return response as any;
     } catch (error) {
       console.error('Error fetching groups:', error);
       throw error;
@@ -51,8 +51,8 @@ export const groupService = {
 
   async getGroupDetails(id: string): Promise<GroupDetailsResponse> {
     try {
-      const response = await api.get(`/social/groups/${id}`);
-      return response.data;
+      const response = await apiClient.get<GroupDetailsResponse>(`/social/groups/${id}`);
+      return response as any;
     } catch (error) {
       console.error('Error fetching group details:', error);
       throw error;
@@ -61,8 +61,8 @@ export const groupService = {
 
   async createGroup(data: CreateGroupRequest): Promise<GroupListResponse> {
     try {
-      const response = await api.post('/social/groups', data);
-      return response.data;
+      const response = await apiClient.post<GroupListResponse>('/social/groups', data);
+      return response as any;
     } catch (error) {
       console.error('Error creating group:', error);
       throw error;
@@ -71,8 +71,8 @@ export const groupService = {
 
   async addMember(groupId: string, identifier: string): Promise<{ status: string, message: string }> {
     try {
-      const response = await api.post(`/social/groups/${groupId}/members`, { identifier });
-      return response.data;
+      const response = await apiClient.post<{ status: string, message: string }>(`/social/groups/${groupId}/members`, { identifier });
+      return response as any;
     } catch (error) {
       console.error('Error adding member:', error);
       throw error;

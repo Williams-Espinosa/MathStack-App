@@ -20,5 +20,9 @@ export const userService = {
 
   registerPushToken(id: string, subscription: any): Promise<any> {
     return apiClient.post(`/users/${id}/push-token`, subscription);
+  },
+
+  getLeaderboard(limit: number = 50): Promise<UserProfileResponse[]> {
+    return apiClient.get<UserProfileResponse[]>(`/users/leaderboard?limit=${limit}`);
   }
 };
