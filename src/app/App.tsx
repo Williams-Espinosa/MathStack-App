@@ -4,6 +4,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { usePWAInstall } from './hooks/usePWAInstall';
 import { usePWASetup } from './hooks/usePWASetup';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { toast, Toaster } from 'sonner';
 import SplashScreen from './components/SplashScreen';
 import Onboarding from './components/Onboarding';
 import Login from './components/Login';
@@ -44,7 +45,18 @@ function AppRoutes() {
     const timer = setTimeout(() => {
       setShowSplash(false);
     }, 2500);
-    return () => clearTimeout(timer);
+
+    const handleOnline = () => toast.success('Conexión a internet restaurada');
+    const handleOffline = () => toast.error('Sin conexión a internet. Revisá tu red.');
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   if (showSplash || isLoading) {
@@ -88,6 +100,7 @@ function AppRoutes() {
           <Route path="/challenges/:id/exercise" element={<ChallengeExercise />} />
           <Route path="/notifications" element={<Notifications />} />
         </Routes>
+        <Toaster position="top-center" />
       </div>
     </BrowserRouter>
   );

@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/authService';
+import CookieWall from './CookieWall';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -172,6 +173,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <CookieWall />
     </div>
   );
 }

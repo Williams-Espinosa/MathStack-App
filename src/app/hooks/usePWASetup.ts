@@ -3,7 +3,20 @@ import { useEffect } from 'react';
 export function usePWASetup() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => { });
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                if (window.confirm('Hay una nueva versión de MathStack disponible. ¿Deseas actualizar ahora?')) {
+                  window.location.reload();
+                }
+              }
+            });
+          }
+        });
+      }).catch(() => { });
     }
 
     if (!document.querySelector('link[rel="manifest"]')) {
