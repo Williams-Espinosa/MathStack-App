@@ -22,7 +22,7 @@ export default function About() {
             <img src="/icons/LogoFelizSinFondo.png" alt="MathStack Logo" className="w-24 h-24 object-contain scale-125" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">MathStack</h1>
-          <p className="text-white/80 text-sm mb-1">Versión 1.0.0</p>
+          <p className="text-white/80 text-sm mb-1">Versión 1.0.1</p>
           <p className="text-white/90 text-sm">© 2026 MathStack</p>
         </div>
       </div>
@@ -75,7 +75,7 @@ export default function About() {
             ¿Tienes feedback o sugerencias?
           </p>
           <a
-            href="mailto:w.espinosa.it@gmail.com"
+            href="mailto:mathstacksoporte@gmail.com"
             className="inline-block bg-white text-primary px-6 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors"
           >
             Contáctanos

@@ -17,7 +17,7 @@ export default function Settings({ onLogout }: SettingsProps) {
   });
   const [reminders, setReminders] = useState(true);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleNotificationsChange = async (enabled: boolean) => {
     setNotifications(enabled);
@@ -140,6 +140,7 @@ export default function Settings({ onLogout }: SettingsProps) {
           <div className="pt-4">
             <button
               onClick={() => {
+                logout();
                 if (onLogout) onLogout();
                 navigate('/login');
               }}
@@ -152,7 +153,7 @@ export default function Settings({ onLogout }: SettingsProps) {
 
           <div className="text-center pt-4 pb-8">
             <p className="text-sm text-muted-foreground">
-              MathStack v1.0.0
+              MathStack v 1.0.1
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               © 2026 MathStack. Todos los derechos reservados.
