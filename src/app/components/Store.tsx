@@ -107,8 +107,12 @@ export default function Store() {
                 </div>
 
                 <div className="flex items-center gap-4 bg-muted rounded-[20px] p-4 mb-5">
-                  <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <span className="text-4xl">{pending.assetUrl || '🎁'}</span>
+                  <div className="w-16 h-16 bg-background rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    {pending.assetUrl && (pending.assetUrl.startsWith('http') || pending.assetUrl.startsWith('/')) ? (
+                      <img src={pending.assetUrl} alt={pending.name} className="w-full h-full object-contain" />
+                    ) : (
+                      <span className="text-4xl">{pending.assetUrl || '🎁'}</span>
+                    )}
                   </div>
                   <div>
                     <p className="font-semibold text-foreground">{pending.name}</p>
@@ -162,8 +166,12 @@ export default function Store() {
                 className={`rounded-[20px] p-5 shadow-md border transition-all ${item.owned ? 'bg-success/10 border-success' : 'bg-card border-border hover:shadow-lg'
                   }`}
               >
-                <div className="aspect-square bg-gradient-to-br from-muted to-background rounded-[15px] flex items-center justify-center mb-3">
-                  <span className="text-6xl">{item.assetUrl || '🎁'}</span>
+                <div className="aspect-square bg-gradient-to-br from-muted to-background rounded-[15px] flex items-center justify-center mb-3 overflow-hidden p-2">
+                  {item.assetUrl && (item.assetUrl.startsWith('http') || item.assetUrl.startsWith('/')) ? (
+                    <img src={item.assetUrl} alt={item.name} className="w-full h-full object-contain" />
+                  ) : (
+                    <span className="text-6xl">{item.assetUrl || '🎁'}</span>
+                  )}
                 </div>
 
                 <h3 className="font-medium text-foreground mb-2 text-sm text-center truncate">{item.name}</h3>
