@@ -106,3 +106,29 @@ export interface ChallengeParticipantResponse {
   timeTakenSeconds: number;
   completedAt: string;
 }
+
+export interface StepByStepRule {
+  title: string;
+  formula: string;
+  description: string;
+}
+
+export interface StepByStepStep {
+  stepNumber: number;
+  title: string;
+  equation: string;
+  explanation: string;
+}
+
+export interface StepByStepData {
+  rules: StepByStepRule[];
+  steps: StepByStepStep[];
+}
+
+export interface ExerciseContentJSON {
+  type: string;
+  question: string;
+  correctAnswer: string;
+  hint: string;
+  stepByStep?: StepByStepData;
+}
