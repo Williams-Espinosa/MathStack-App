@@ -4,22 +4,39 @@ import { toast } from 'sonner';
 export function usePWASetup() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
+      const showUpdateToast = () => {
+        toast('Hay una nueva versión disponible.', {
+          id: 'pwa-update-toast',
+          description: 'Actualiza para ver los últimos cambios.',
+          action: {
+            label: 'Actualizar',
+            onClick: () => window.location.reload()
+          },
+          duration: Infinity,
+        });
+      };
+
       navigator.serviceWorker.register('/sw.js').then((reg) => {
+        reg.update();
+
+        if (reg.waiting) {
+          showUpdateToast();
+        }
+
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                toast('Hay una nueva versión disponible.', {
-                  description: 'Actualiza para ver los últimos cambios.',
-                  action: {
-                    label: 'Actualizar',
-                    onClick: () => window.location.reload()
-                  },
-                  duration: Infinity,
-                });
+                showUpdateToast();
               }
             });
+          }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') {
+            reg.update();
           }
         });
       }).catch(() => { });
