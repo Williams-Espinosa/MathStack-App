@@ -33,6 +33,7 @@ import ForgotPassword from './components/ForgotPassword';
 import ChallengeExercise from './components/ChallengeExercise';
 import Notifications from './components/Notifications';
 import InstallBanner from './components/InstallBanner';
+import PublicProfile from './components/PublicProfile';
 
 function AppRoutes() {
   const [showSplash, setShowSplash] = useState(true);
@@ -89,6 +90,7 @@ function AppRoutes() {
           <Route path="/groups/:id" element={<GroupDetail />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:id" element={<PublicProfile />} />
           <Route path="/store" element={<Store />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/account" element={<AccountManagement />} />

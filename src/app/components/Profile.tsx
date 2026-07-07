@@ -1,13 +1,43 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Settings, Zap, Coins, BookOpen, Flame, Trophy, Award } from 'lucide-react';
+import { ArrowLeft, Settings, Zap, Coins, BookOpen, Flame, Trophy, Award, Edit2 } from 'lucide-react';
 import BottomNav from './BottomNav';
 import { useAuth } from '../contexts/AuthContext';
+import { storeService } from '../services/storeService';
+import AvatarSelectorModal from './AvatarSelectorModal';
 
 const achievements: any[] = [];
 
 export default function Profile() {
   const navigate = useNavigate();
   const { user, gamificationStats } = useAuth();
+  
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [activeAvatarUrl, setActiveAvatarUrl] = useState<string>('👤');
+
+  useEffect(() => {
+    const loadAvatar = async () => {
+      if (!user) return;
+      try {
+        const [items, inventory] = await Promise.all([
+          storeService.getItems(),
+          storeService.getInventory(user.id)
+        ]);
+        
+        const equipped = inventory.find(inv => inv.isEquipped);
+        if (equipped) {
+          const item = items.find(i => i.id === equipped.itemId);
+          if (item) {
+            setActiveAvatarUrl(item.assetUrl);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading avatar:', error);
+      }
+    };
+    
+    loadAvatar();
+  }, [user]);
 
   return (
     <div className="size-full flex flex-col bg-background overflow-auto pb-28">
@@ -20,9 +50,19 @@ export default function Profile() {
           </div>
 
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 rounded-full bg-white/20 border-4 border-white/40 flex items-center justify-center backdrop-blur-sm mb-4">
-              <span className="text-5xl">👤</span>
-            </div>
+            <button 
+              onClick={() => setIsAvatarModalOpen(true)}
+              className="relative w-24 h-24 rounded-full bg-white/20 border-4 border-white/40 flex items-center justify-center backdrop-blur-sm mb-4 group hover:scale-105 transition-transform"
+            >
+              {activeAvatarUrl && (activeAvatarUrl.startsWith('http') || activeAvatarUrl.startsWith('/')) ? (
+                <img src={activeAvatarUrl} alt="Avatar" className="w-full h-full object-contain p-2" />
+              ) : (
+                <span className="text-5xl">{activeAvatarUrl || '👤'}</span>
+              )}
+              <div className="absolute bottom-0 right-0 bg-primary p-1.5 rounded-full border-2 border-white text-white shadow-md">
+                <Edit2 className="w-4 h-4" />
+              </div>
+            </button>
             <h2 className="text-2xl font-bold text-white mb-1">{user?.username || 'Estudiante'}</h2>
             <p className="text-white/80 mb-4">{user?.email}</p>
 
@@ -126,6 +166,12 @@ export default function Profile() {
         </div>
       </div>
 
+      <AvatarSelectorModal 
+        userId={user?.id || ''} 
+        isOpen={isAvatarModalOpen} 
+        onClose={() => setIsAvatarModalOpen(false)}
+        onAvatarSelected={(url) => setActiveAvatarUrl(url)}
+      />
       <BottomNav />
     </div>
   );

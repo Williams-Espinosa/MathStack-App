@@ -5,6 +5,7 @@ import BottomNav from './BottomNav';
 import { useAuth } from '../contexts/AuthContext';
 import { academicService } from '../services/academicService';
 import { practiceService } from '../services/practiceService';
+import { storeService } from '../services/storeService';
 import { SubjectResponse } from '../types/api';
 
 export default function Dashboard() {
@@ -13,6 +14,7 @@ export default function Dashboard() {
 
   const [subjects, setSubjects] = useState<(SubjectResponse & { progress: number, lessons: number, total: number, color: string })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeAvatarUrl, setActiveAvatarUrl] = useState<string>('');
   const hasUnreadNotifications = false;
 
   useEffect(() => {
@@ -23,13 +25,28 @@ export default function Dashboard() {
         const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500'];
         const subjectsWithProgress = subjectsData.map((sub, idx) => ({
           ...sub,
-          progress: Math.floor(Math.random() * 50),
-          lessons: Math.floor(Math.random() * 5) + 1,
+          progress: 0,
+          lessons: 0,
           total: 10,
           color: colors[idx % colors.length]
         }));
 
         setSubjects(subjectsWithProgress);
+
+        if (user) {
+          const [items, inventory] = await Promise.all([
+            storeService.getItems(),
+            storeService.getInventory(user.id)
+          ]);
+          
+          const equipped = inventory.find(inv => inv.isEquipped);
+          if (equipped) {
+            const item = items.find(i => i.id === equipped.itemId);
+            if (item) {
+              setActiveAvatarUrl(item.assetUrl);
+            }
+          }
+        }
 
       } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -51,8 +68,12 @@ export default function Dashboard() {
         <div className="bg-gradient-to-br from-primary to-blue-700 px-6 pt-8 pb-12 rounded-b-[40px] shadow-xl">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center backdrop-blur-sm">
-                <User className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center backdrop-blur-sm overflow-hidden">
+                {activeAvatarUrl && (activeAvatarUrl.startsWith('http') || activeAvatarUrl.startsWith('/')) ? (
+                  <img src={activeAvatarUrl} alt="Avatar" className="w-full h-full object-contain p-1" />
+                ) : (
+                  activeAvatarUrl ? <span className="text-2xl">{activeAvatarUrl}</span> : <User className="w-6 h-6 text-white" />
+                )}
               </div>
               <div>
                 <p className="text-white/80 text-sm">Hola,</p>

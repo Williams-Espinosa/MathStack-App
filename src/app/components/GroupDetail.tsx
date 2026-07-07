@@ -168,9 +168,10 @@ export default function GroupDetail() {
                 const rank = idx + 1;
                 const badge = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : null;
                 return (
-                  <div
+                  <button
                     key={member.userId}
-                    className={`bg-card rounded-[20px] p-5 shadow-md border hover:shadow-lg transition-shadow border-border`}
+                    onClick={() => navigate(`/profile/${member.userId}`)}
+                    className={`w-full text-left bg-card rounded-[20px] p-5 shadow-md border hover:shadow-lg transition-shadow border-border`}
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${rank === 1 ? 'bg-warning/20' :
@@ -212,7 +213,7 @@ export default function GroupDetail() {
                         <p className="text-xs text-muted-foreground">XP</p>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 )
               })}
             </div>

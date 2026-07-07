@@ -1,18 +1,15 @@
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { ArrowRight } from 'lucide-react';
 import BottomNav from './BottomNav';
 
-const results = [
-  { subject: 'Álgebra', score: 65 },
-  { subject: 'Aritmética', score: 45 },
-  { subject: 'Cálculo', score: 30 },
-  { subject: 'Geometría', score: 55 },
-  { subject: 'Trigonometría', score: 40 }
-];
-
 export default function DiagnosticResults() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const results = location.state?.results || [
+    { subject: 'Sin datos', score: 0 }
+  ];
 
   return (
     <div className="size-full flex flex-col bg-background overflow-auto pb-28">
@@ -51,21 +48,19 @@ export default function DiagnosticResults() {
               <div key={index} className="bg-card rounded-[20px] p-5 shadow-sm border border-border">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-medium text-foreground">{item.subject}</h4>
-                  <span className={`text-sm px-3 py-1 rounded-full ${
-                    item.score < 40 ? 'bg-destructive/10 text-destructive' :
-                    item.score < 60 ? 'bg-warning/10 text-warning-foreground' :
-                    'bg-success/10 text-success'
-                  }`}>
+                  <span className={`text-sm px-3 py-1 rounded-full ${item.score < 40 ? 'bg-destructive/10 text-destructive' :
+                      item.score < 60 ? 'bg-warning/10 text-warning-foreground' :
+                        'bg-success/10 text-success'
+                    }`}>
                     {item.score}%
                   </span>
                 </div>
                 <div className="relative w-full h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className={`absolute top-0 left-0 h-full rounded-full transition-all ${
-                      item.score < 40 ? 'bg-destructive' :
-                      item.score < 60 ? 'bg-warning' :
-                      'bg-success'
-                    }`}
+                    className={`absolute top-0 left-0 h-full rounded-full transition-all ${item.score < 40 ? 'bg-destructive' :
+                        item.score < 60 ? 'bg-warning' :
+                          'bg-success'
+                      }`}
                     style={{ width: `${item.score}%` }}
                   ></div>
                 </div>

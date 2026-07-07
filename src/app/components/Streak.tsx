@@ -93,8 +93,8 @@ export default function Streak() {
               transition={{ type: "spring", bounce: 0.5 }}
               className="relative mb-6"
             >
-              <div className="w-32 h-32  justify-center ">
-                <img src="/assets/fuego-3d.png" alt="" />
+              <div className="w-32 h-32 flex items-center justify-center bg-orange-500/10 rounded-full border-[8px] border-orange-500/20">
+                <Flame className="w-16 h-16 text-orange-500" />
               </div>
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
