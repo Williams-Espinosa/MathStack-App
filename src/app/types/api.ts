@@ -3,7 +3,6 @@ export interface User {
   firebaseUid?: string;
   email: string;
   username: string;
-  avatarUrl?: string;
   accessLevel: string;
   createdAt: string;
 }

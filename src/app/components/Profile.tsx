@@ -13,7 +13,31 @@ export default function Profile() {
   const { user, gamificationStats } = useAuth();
   
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
-  const activeAvatarUrl = user?.avatarUrl || '👤';
+  const [activeAvatarUrl, setActiveAvatarUrl] = useState<string>('👤');
+
+  useEffect(() => {
+    const loadAvatar = async () => {
+      if (!user) return;
+      try {
+        const [items, inventory] = await Promise.all([
+          storeService.getItems(),
+          storeService.getInventory(user.id)
+        ]);
+        
+        const equipped = inventory.find(inv => inv.isEquipped);
+        if (equipped) {
+          const item = items.find(i => i.id === equipped.itemId);
+          if (item) {
+            setActiveAvatarUrl(item.assetUrl);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading avatar:', error);
+      }
+    };
+    
+    loadAvatar();
+  }, [user]);
 
   return (
     <div className="size-full flex flex-col bg-background overflow-auto pb-28">
@@ -146,6 +170,7 @@ export default function Profile() {
         userId={user?.id || ''} 
         isOpen={isAvatarModalOpen} 
         onClose={() => setIsAvatarModalOpen(false)}
+        onAvatarSelected={(url) => setActiveAvatarUrl(url)}
       />
       <BottomNav />
     </div>

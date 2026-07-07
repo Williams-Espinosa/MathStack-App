@@ -11,14 +11,28 @@ export default function PublicProfile() {
   const { id } = useParams();
   
   const [profile, setProfile] = useState<UserProfileResponse | null>(null);
+  const [activeAvatarUrl, setActiveAvatarUrl] = useState<string>('👤');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       if (!id) return;
       try {
-        const profileData = await userService.getUserById(id);
+        const [profileData, items, inventory] = await Promise.all([
+          userService.getUserById(id),
+          storeService.getItems(),
+          storeService.getInventory(id)
+        ]);
+        
         setProfile(profileData);
+        
+        const equipped = inventory.find(inv => inv.isEquipped);
+        if (equipped) {
+          const item = items.find(i => i.id === equipped.itemId);
+          if (item) {
+            setActiveAvatarUrl(item.assetUrl);
+          }
+        }
       } catch (error) {
         toast.error('Error al cargar el perfil del usuario');
       } finally {
@@ -62,10 +76,10 @@ export default function PublicProfile() {
 
           <div className="flex flex-col items-center">
             <div className="w-24 h-24 rounded-full bg-white/20 border-4 border-white/40 flex items-center justify-center backdrop-blur-sm mb-4 overflow-hidden">
-              {profile.user.avatarUrl && (profile.user.avatarUrl.startsWith('http') || profile.user.avatarUrl.startsWith('/')) ? (
-                <img src={profile.user.avatarUrl} alt="Avatar" className="w-full h-full object-contain p-2" />
+              {activeAvatarUrl && (activeAvatarUrl.startsWith('http') || activeAvatarUrl.startsWith('/')) ? (
+                <img src={activeAvatarUrl} alt="Avatar" className="w-full h-full object-contain p-2" />
               ) : (
-                <span className="text-5xl">{profile.user.avatarUrl || '👤'}</span>
+                <span className="text-5xl">{activeAvatarUrl || '👤'}</span>
               )}
             </div>
             <h2 className="text-2xl font-bold text-white mb-1">{profile.user.username}</h2>
