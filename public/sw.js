@@ -1,4 +1,4 @@
-const CACHE = 'mathstack-v1';
+const CACHE = 'mathstack-v2';
 const ASSETS = ['/', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
