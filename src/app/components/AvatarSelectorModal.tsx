@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { X, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { storeService } from '../services/storeService';
+import { userService } from '../services/userService';
+import { useAuth } from '../contexts/AuthContext';
 import { StoreItemResponse } from '../types/api';
 import { toast } from 'sonner';
 
@@ -16,6 +18,7 @@ export default function AvatarSelectorModal({ userId, isOpen, onClose, onAvatarS
   const [ownedAvatares, setOwnedAvatares] = useState<(StoreItemResponse & { isEquipped: boolean })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [equippingId, setEquippingId] = useState<string | null>(null);
+  const { refreshProfile } = useAuth();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -52,7 +55,9 @@ export default function AvatarSelectorModal({ userId, isOpen, onClose, onAvatarS
     setEquippingId(item.id);
     try {
       await storeService.equipItem(userId, item.id);
-      onAvatarSelected(item.assetUrl);
+      await userService.updateUser(userId, { avatarUrl: item.assetUrl });
+      await refreshProfile();
+      if (onAvatarSelected) onAvatarSelected(item.assetUrl);
       toast.success('Avatar actualizado');
       onClose();
     } catch (error) {

@@ -14,7 +14,7 @@ export default function Dashboard() {
 
   const [subjects, setSubjects] = useState<(SubjectResponse & { progress: number, lessons: number, total: number, color: string })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeAvatarUrl, setActiveAvatarUrl] = useState<string>('');
+  const activeAvatarUrl = user?.avatarUrl || '';
   const hasUnreadNotifications = false;
 
   useEffect(() => {
@@ -32,22 +32,6 @@ export default function Dashboard() {
         }));
 
         setSubjects(subjectsWithProgress);
-
-        if (user) {
-          const [items, inventory] = await Promise.all([
-            storeService.getItems(),
-            storeService.getInventory(user.id)
-          ]);
-          
-          const equipped = inventory.find(inv => inv.isEquipped);
-          if (equipped) {
-            const item = items.find(i => i.id === equipped.itemId);
-            if (item) {
-              setActiveAvatarUrl(item.assetUrl);
-            }
-          }
-        }
-
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       } finally {
