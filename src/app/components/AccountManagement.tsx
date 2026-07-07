@@ -8,21 +8,27 @@ import { toast } from 'sonner';
 export default function AccountManagement() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  
+
   const [name, setName] = useState(user?.username || 'Estudiante');
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDeleteAccount = async () => {
     if (!user) return;
-    
+
     const confirmDelete = window.confirm(
       '¿Estás completamente seguro de que deseas eliminar tu cuenta permanentemente? Esta acción no se puede deshacer y perderás todo tu progreso, insignias y monedas.'
     );
-    
+
     if (confirmDelete) {
       setIsDeleting(true);
       try {
-        await userService.deleteUser(user.id);
+        const randomString = Math.random().toString(36).substring(2, 10);
+        await userService.updateUser(user.id, {
+          username: 'Usuario Eliminado',
+          email: `borrado_${user.id.substring(0, 8)}_${randomString}@mathstack.app`,
+          firebaseUid: `deleted_${randomString}`
+        });
+
         toast.success('Cuenta eliminada exitosamente');
         logout();
         navigate('/login');
@@ -87,7 +93,7 @@ export default function AccountManagement() {
               Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate.
             </p>
 
-            <button 
+            <button
               onClick={handleDeleteAccount}
               disabled={isDeleting}
               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20 rounded-[20px] transition-colors disabled:opacity-50"
