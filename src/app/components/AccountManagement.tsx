@@ -1,11 +1,37 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, User, Mail, Lock, Trash2 } from 'lucide-react';
+import { ArrowLeft, User, Lock, Trash2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { userService } from '../services/userService';
+import { toast } from 'sonner';
 
 export default function AccountManagement() {
   const navigate = useNavigate();
-  const [name, setName] = useState('Estudiante');
-  const [email, setEmail] = useState('estudiante@email.com');
+  const { user, logout } = useAuth();
+  
+  const [name, setName] = useState(user?.username || 'Estudiante');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    
+    const confirmDelete = window.confirm(
+      '¿Estás completamente seguro de que deseas eliminar tu cuenta permanentemente? Esta acción no se puede deshacer y perderás todo tu progreso, insignias y monedas.'
+    );
+    
+    if (confirmDelete) {
+      setIsDeleting(true);
+      try {
+        await userService.deleteUser(user.id);
+        toast.success('Cuenta eliminada exitosamente');
+        logout();
+        navigate('/login');
+      } catch (error) {
+        toast.error('Ocurrió un error al intentar eliminar la cuenta');
+        setIsDeleting(false);
+      }
+    }
+  };
 
   return (
     <div className="size-full flex flex-col bg-background overflow-auto pb-28">
@@ -61,9 +87,13 @@ export default function AccountManagement() {
               Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate.
             </p>
 
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20 rounded-[20px] transition-colors">
+            <button 
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-destructive/20 rounded-[20px] transition-colors disabled:opacity-50"
+            >
               <Trash2 className="w-5 h-5" />
-              <span className="font-medium">Eliminar cuenta</span>
+              <span className="font-medium">{isDeleting ? 'Eliminando...' : 'Eliminar cuenta'}</span>
             </button>
           </div>
         </div>

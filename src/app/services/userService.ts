@@ -14,6 +14,10 @@ export const userService = {
     return apiClient.patch<User>(`/users/${id}`, data);
   },
 
+  deleteUser(id: string): Promise<void> {
+    return apiClient.delete(`/users/${id}`);
+  },
+
   updateGamificationStats(id: string, data: any): Promise<GamificationStats> {
     return apiClient.patch<GamificationStats>(`/users/${id}/gamification-stats`, data);
   },
