@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 export function usePWASetup() {
   useEffect(() => {
@@ -9,9 +10,14 @@ export function usePWASetup() {
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                if (window.confirm('Hay una nueva versión de MathStack disponible. ¿Deseas actualizar ahora?')) {
-                  window.location.reload();
-                }
+                toast('Hay una nueva versión disponible.', {
+                  description: 'Actualiza para ver los últimos cambios.',
+                  action: {
+                    label: 'Actualizar',
+                    onClick: () => window.location.reload()
+                  },
+                  duration: Infinity,
+                });
               }
             });
           }
