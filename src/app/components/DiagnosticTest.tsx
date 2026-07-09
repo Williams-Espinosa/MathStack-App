@@ -21,57 +21,45 @@ export default function DiagnosticTest() {
   const [answer, setAnswer] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [results, setResults] = useState<{ subject: string, score: number, subjectId: number }[]>([]);
+  const [results, setResults] = useState<{ subjectId: number, exerciseId: string, isCorrect: boolean }[]>([]);
 
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const auth = useAuth();
+  const user = auth.user;
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const subjectsData = await academicService.getSubjects();
+        const exercises = await practiceService.generateDiagnosticQuiz();
 
-        const questionsPromises = subjectsData.map(async (subject) => {
+        if (exercises.length === 0) {
+          setQuestions([]);
+          return;
+        }
+
+        const loadedQuestions = exercises.map(randomExercise => {
+          let displayContent = randomExercise.content;
+          let correctAnswer = randomExercise.conceptTested || '';
+
           try {
-            const lessons = await academicService.getLessons(subject.id);
-            if (lessons.length === 0) return null;
-
-            const randomLesson = lessons[Math.floor(Math.random() * lessons.length)];
-            const exercises = await academicService.getExercises(randomLesson.id);
-
-            if (exercises.length === 0) return null;
-
-            const randomExercise = exercises[Math.floor(Math.random() * exercises.length)];
-
-            let displayContent = randomExercise.content;
-            let correctAnswer = randomExercise.conceptTested || '';
-
-            try {
-              const parsed = JSON.parse(randomExercise.content);
-              displayContent = parsed.question || displayContent;
-              if (parsed.correctAnswer) {
-                correctAnswer = parsed.correctAnswer;
-              }
-            } catch (e) {
+            const parsed = JSON.parse(randomExercise.content);
+            displayContent = parsed.question || displayContent;
+            if (parsed.correctAnswer) {
+              correctAnswer = parsed.correctAnswer;
             }
-
-            return {
-              subjectId: subject.id,
-              subjectName: subject.name,
-              exerciseId: randomExercise.id,
-              displayContent,
-              correctAnswer
-            };
           } catch (e) {
-            return null;
           }
+
+          return {
+            subjectId: 0,
+            subjectName: 'Diagnóstico',
+            exerciseId: randomExercise.id,
+            displayContent,
+            correctAnswer
+          };
         });
 
-        const loadedQuestions = (await Promise.all(questionsPromises)).filter(Boolean) as DiagnosticQuestion[];
-
-        const shuffled = [...loadedQuestions].sort(() => Math.random() - 0.5);
-
-        setQuestions(shuffled);
+        setQuestions(loadedQuestions);
       } catch (error) {
         toast.error('Error al cargar la prueba diagnóstica');
         navigate('/dashboard');
@@ -111,28 +99,24 @@ export default function DiagnosticTest() {
 
   const handleNext = async () => {
     const isCorrect = answer.trim().toLowerCase() === question.correctAnswer.trim().toLowerCase();
-    const score = isCorrect ? 100 : 0;
 
-    const newResults = [...results, { subjectId: question.subjectId, subject: question.subjectName, score }];
+    const newResults = [...results, { subjectId: question.subjectId, exerciseId: question.exerciseId, isCorrect }];
     setResults(newResults);
 
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
       setAnswer('');
     } else {
-      // Finish
       setIsSubmitting(true);
       try {
         if (user) {
-          const promises = newResults.map(r =>
-            practiceService.submitDiagnostic(user.id, r.subjectId, r.score)
-          );
-          await Promise.all(promises);
+          await practiceService.submitDiagnostic(user.id, newResults.map(r => ({ exerciseId: r.exerciseId, isCorrect: r.isCorrect })));
+          await useAuth().refreshProfile();
         }
-        navigate('/diagnostic-results', { state: { results: newResults } });
+        navigate('/diagnostic-results');
       } catch (error) {
         toast.error('Error al guardar los resultados');
-        navigate('/diagnostic-results', { state: { results: newResults } });
+        navigate('/diagnostic-results');
       } finally {
         setIsSubmitting(false);
       }

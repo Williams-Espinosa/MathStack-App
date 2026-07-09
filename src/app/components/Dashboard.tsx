@@ -57,6 +57,26 @@ export default function Dashboard() {
     loadDashboardData();
   }, [user]);
 
+  useEffect(() => {
+    if (gamificationStats && !isLoading) {
+      const lastDiagnostic = gamificationStats.lastDiagnosticDate;
+      const today = new Date();
+      if (!lastDiagnostic) {
+        navigate('/diagnostic');
+      } else {
+        const diagnosticDate = new Date(lastDiagnostic);
+        const diffTime = Math.abs(today.getTime() - diagnosticDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays > 10) {
+          toast('¡Es hora de evaluar tu progreso!', {
+            description: 'Han pasado más de 10 días desde tu última prueba.',
+          });
+          navigate('/diagnostic');
+        }
+      }
+    }
+  }, [gamificationStats, isLoading, navigate]);
+
   const streak = gamificationStats?.currentStreak || 0;
   const xp = gamificationStats?.xpPoints || 0;
   const coins = gamificationStats?.coins || 0;

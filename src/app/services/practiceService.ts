@@ -14,7 +14,11 @@ export const practiceService = {
     return apiClient.get<StudentDashboardMetricsResponse>(`/practice/users/${userId}/dashboard`);
   },
 
-  submitDiagnostic(userId: string, subjectId: number, score: number): Promise<any> {
-    return apiClient.post(`/practice/users/${userId}/diagnostics`, { subjectId, score });
+  generateDiagnosticQuiz(): Promise<import('../types/api').ExerciseResponse[]> {
+    return apiClient.get<import('../types/api').ExerciseResponse[]>('/practice/diagnostics/generate');
+  },
+
+  submitDiagnostic(userId: string, answers: { exerciseId: string; isCorrect: boolean }[]): Promise<any> {
+    return apiClient.post(`/practice/users/${userId}/diagnostics`, { answers });
   }
 };

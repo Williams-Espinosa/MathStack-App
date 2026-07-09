@@ -17,6 +17,7 @@ export interface GamificationStats {
   maxStreak: number;
   minutesPracticed: number;
   lastPracticeDate: string | null;
+  lastDiagnosticDate: string | null;
 }
 
 export interface UserProfileResponse {
