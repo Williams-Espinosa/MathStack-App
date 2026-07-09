@@ -70,7 +70,7 @@ export default function DiagnosticTest() {
     };
 
     loadData();
-  }, [navigate]);
+  }, [navigate, user]);
 
   if (isLoading) {
     return (
