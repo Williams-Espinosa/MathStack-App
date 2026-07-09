@@ -111,10 +111,12 @@ export default function DiagnosticTest() {
       setIsSubmitting(true);
       try {
         if (user) {
-          await practiceService.submitDiagnostic(user.id, newResults.map(r => ({ exerciseId: r.exerciseId, isCorrect: r.isCorrect })));
+          const finalResults = await practiceService.submitDiagnostic(user.id, newResults.map(r => ({ exerciseId: r.exerciseId, isCorrect: r.isCorrect })));
           await auth.refreshProfile();
+          navigate('/diagnostic-results', { state: { results: finalResults } });
+        } else {
+          navigate('/diagnostic-results');
         }
-        navigate('/diagnostic-results');
       } catch (error) {
         toast.error('Error al guardar los resultados');
         navigate('/diagnostic-results');
