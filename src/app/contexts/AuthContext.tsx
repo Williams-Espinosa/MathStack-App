@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { User, GamificationStats, AuthResponse } from '../types/api';
 import { userService } from '../services/userService';
+import { getNewlyUnlockedAchievements } from '../constants/achievements';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -18,6 +20,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [gamificationStats, setGamificationStats] = useState<GamificationStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  const prevStatsRef = useRef<GamificationStats | null>(null);
+
+  useEffect(() => {
+    if (prevStatsRef.current && gamificationStats) {
+      const newlyUnlocked = getNewlyUnlockedAchievements(prevStatsRef.current, gamificationStats);
+      newlyUnlocked.forEach(achievement => {
+        toast.success(`¡Insignia Desbloqueada: ${achievement.title}!`, {
+          description: `${achievement.icon} ${achievement.description}`,
+          duration: 5000,
+        });
+      });
+    }
+    if (gamificationStats) {
+      prevStatsRef.current = gamificationStats;
+    }
+  }, [gamificationStats]);
 
   const isAuthenticated = !!user;
 

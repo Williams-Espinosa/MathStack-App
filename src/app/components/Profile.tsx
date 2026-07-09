@@ -5,8 +5,7 @@ import BottomNav from './BottomNav';
 import { useAuth } from '../contexts/AuthContext';
 import { storeService } from '../services/storeService';
 import AvatarSelectorModal from './AvatarSelectorModal';
-
-const achievements: any[] = [];
+import { ACHIEVEMENTS, getUnlockedAchievements } from '../constants/achievements';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -14,6 +13,12 @@ export default function Profile() {
   
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [activeAvatarUrl, setActiveAvatarUrl] = useState<string>('👤');
+  
+  const unlockedAchievements = getUnlockedAchievements(gamificationStats || undefined);
+  const allAchievements = ACHIEVEMENTS.map(ach => ({
+    ...ach,
+    unlocked: unlockedAchievements.some(ua => ua.id === ach.id)
+  }));
 
   useEffect(() => {
     const loadAvatar = async () => {
@@ -131,7 +136,7 @@ export default function Profile() {
             </div>
             <div className="bg-card rounded-[20px] p-4 shadow-sm border border-border">
               <Award className="w-8 h-8 text-success mb-2" />
-              <p className="text-2xl font-bold text-foreground">0</p>
+              <p className="text-2xl font-bold text-foreground">{unlockedAchievements.length}</p>
               <p className="text-sm text-muted-foreground">Logros desbloqueados</p>
             </div>
           </div>
@@ -139,9 +144,9 @@ export default function Profile() {
 
         <div>
           <h3 className="text-lg font-semibold text-foreground mb-4">Logros</h3>
-          {achievements.length > 0 ? (
+          {allAchievements.length > 0 ? (
             <div className="grid grid-cols-3 gap-3">
-              {achievements.map((achievement) => (
+              {allAchievements.map((achievement) => (
                 <div
                   key={achievement.id}
                   className={`aspect-square rounded-[20px] p-4 flex flex-col items-center justify-center shadow-sm border transition-all ${achievement.unlocked
@@ -151,7 +156,7 @@ export default function Profile() {
                 >
                   <div className="text-4xl mb-2">{achievement.icon}</div>
                   <p className="text-xs text-center font-medium text-foreground">
-                    {achievement.name}
+                    {achievement.title}
                   </p>
                 </div>
               ))}
