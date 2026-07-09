@@ -14,8 +14,8 @@ export const practiceService = {
     return apiClient.get<StudentDashboardMetricsResponse>(`/practice/users/${userId}/dashboard`);
   },
 
-  generateDiagnosticQuiz(): Promise<import('../types/api').ExerciseResponse[]> {
-    return apiClient.get<import('../types/api').ExerciseResponse[]>('/practice/diagnostics/generate');
+  generateDiagnosticQuiz(userId: string): Promise<import('../types/api').ExerciseResponse[]> {
+    return apiClient.get<import('../types/api').ExerciseResponse[]>(`/practice/users/${userId}/diagnostics/generate`);
   },
 
   submitDiagnostic(userId: string, answers: { exerciseId: string; isCorrect: boolean }[]): Promise<any> {

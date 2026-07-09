@@ -30,7 +30,8 @@ export default function DiagnosticTest() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const exercises = await practiceService.generateDiagnosticQuiz();
+        if (!user) return;
+        const exercises = await practiceService.generateDiagnosticQuiz(user.id);
 
         if (exercises.length === 0) {
           setQuestions([]);
@@ -111,7 +112,7 @@ export default function DiagnosticTest() {
       try {
         if (user) {
           await practiceService.submitDiagnostic(user.id, newResults.map(r => ({ exerciseId: r.exerciseId, isCorrect: r.isCorrect })));
-          await useAuth().refreshProfile();
+          await auth.refreshProfile();
         }
         navigate('/diagnostic-results');
       } catch (error) {
