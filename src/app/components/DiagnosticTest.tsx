@@ -13,6 +13,7 @@ interface DiagnosticQuestion {
   exerciseId: string;
   displayContent: string;
   correctAnswer: string;
+  options?: string[];
 }
 
 export default function DiagnosticTest() {
@@ -41,12 +42,16 @@ export default function DiagnosticTest() {
         const loadedQuestions = exercises.map(randomExercise => {
           let displayContent = randomExercise.content;
           let correctAnswer = randomExercise.conceptTested || '';
+          let options: string[] | undefined = undefined;
 
           try {
             const parsed = JSON.parse(randomExercise.content);
             displayContent = parsed.question || displayContent;
             if (parsed.correctAnswer) {
               correctAnswer = parsed.correctAnswer;
+            }
+            if (parsed.options && Array.isArray(parsed.options)) {
+              options = parsed.options;
             }
           } catch (e) {
           }
@@ -56,7 +61,8 @@ export default function DiagnosticTest() {
             subjectName: 'Diagnóstico',
             exerciseId: randomExercise.id,
             displayContent,
-            correctAnswer
+            correctAnswer,
+            options
           };
         });
 
@@ -157,18 +163,37 @@ export default function DiagnosticTest() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="text-xl text-foreground">x =</span>
-              <input
-                type="text"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Tu respuesta"
-                className="flex-1 px-6 py-4 bg-background border-2 border-border rounded-[20px] text-xl text-center focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                disabled={isSubmitting}
-                autoFocus
-              />
-            </div>
+            {question.options ? (
+              <div className="flex flex-col gap-3">
+                {question.options.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setAnswer(opt)}
+                    className={`px-6 py-4 rounded-[20px] text-lg font-medium transition-all ${
+                      answer === opt
+                        ? 'bg-primary text-white shadow-md'
+                        : 'bg-muted hover:bg-muted/80 text-foreground'
+                    }`}
+                    disabled={isSubmitting}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <span className="text-xl text-foreground">x =</span>
+                <input
+                  type="text"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="Tu respuesta"
+                  className="flex-1 px-6 py-4 bg-background border-2 border-border rounded-[20px] text-xl text-center focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  disabled={isSubmitting}
+                  autoFocus
+                />
+              </div>
+            )}
           </div>
         </div>
 
