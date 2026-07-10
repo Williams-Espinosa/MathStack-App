@@ -38,17 +38,26 @@ export default function Challenges() {
     const fetchChallenges = async () => {
       try {
         const data = await socialService.getGlobalChallenges();
-        const formatted: Challenge[] = data.map(c => ({
-          id: c.id,
-          title: c.title,
-          description: c.description,
-          difficulty: c.difficulty as any,
-          timeLeft: c.endDate ? new Date(c.endDate).toLocaleDateString() : 'Sin límite',
-          reward: { coins: c.rewardCoins, xp: c.rewardXP },
-          progress: 0,
-          participants: c.participants || 0,
-          joined: false
-        }));
+        const formatted: Challenge[] = data.map(c => {
+          let diffStr = c.difficulty || 'Fácil';
+          const lower = diffStr.toLowerCase();
+          if (lower === 'easy' || lower.includes('fácil')) diffStr = 'Fácil';
+          else if (lower === 'medium' || lower.includes('medio')) diffStr = 'Medio';
+          else if (lower === 'hard' || lower.includes('dif')) diffStr = 'Difícil';
+          else diffStr = 'Fácil';
+
+          return {
+            id: c.id,
+            title: c.title,
+            description: c.description,
+            difficulty: diffStr as any,
+            timeLeft: c.endDate ? new Date(c.endDate).toLocaleDateString() : 'Sin límite',
+            reward: { coins: c.rewardCoins || 0, xp: c.rewardXP || 0 },
+            progress: 0,
+            participants: c.participants || 0,
+            joined: false
+          };
+        });
         setChallenges(formatted);
       } catch (err) {
         toast.error('Error al cargar los retos');
@@ -175,7 +184,7 @@ function ChallengeCard({
   onAction: () => void;
   onContinue: () => void;
 }) {
-  const styles = DIFFICULTY_STYLES[challenge.difficulty];
+  const styles = DIFFICULTY_STYLES[challenge.difficulty] || DIFFICULTY_STYLES['Fácil'];
 
   return (
     <motion.div
