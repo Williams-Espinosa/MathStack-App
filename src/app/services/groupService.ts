@@ -28,6 +28,7 @@ export interface GroupDetailsResponse {
   activeChallenges: number;
   totalXp: number;
   color: string;
+  activeLevelId?: string | null;
   members: GroupMemberResponse[];
 }
 
@@ -69,13 +70,11 @@ export const groupService = {
     }
   },
 
-  async addMember(groupId: string, identifier: string): Promise<{ status: string, message: string }> {
-    try {
-      const response = await apiClient.post<{ status: string, message: string }>(`/social/groups/${groupId}/members`, { identifier });
-      return response as any;
-    } catch (error) {
-      console.error('Error adding member:', error);
-      throw error;
-    }
+  async addMember(groupId: string, identifier: string): Promise<any> {
+    return apiClient.post(`/social/groups/${groupId}/members`, { identifier });
+  },
+
+  setActiveLevel(groupId: string, levelId: string): Promise<any> {
+    return apiClient.post(`/social/groups/${groupId}/active-level`, { levelId });
   }
 };

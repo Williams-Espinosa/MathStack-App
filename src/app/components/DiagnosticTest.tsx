@@ -6,6 +6,7 @@ import { academicService } from '../services/academicService';
 import { practiceService } from '../services/practiceService';
 import { useAuth } from '../contexts/AuthContext';
 import { ExerciseResponse, SubjectResponse } from '../types/api';
+import { Brain, BookOpen, TrendingUp, Sigma, Calculator, Compass, Layers, Binary, Search } from 'lucide-react';
 
 interface DiagnosticQuestion {
   subjectId: number;
@@ -23,6 +24,8 @@ export default function DiagnosticTest() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [results, setResults] = useState<{ subjectId: number, exerciseId: string, isCorrect: boolean }[]>([]);
+  const [isIntroScreen, setIsIntroScreen] = useState(true);
+  const [subjects, setSubjects] = useState<SubjectResponse[]>([]);
 
   const navigate = useNavigate();
   const auth = useAuth();
@@ -32,7 +35,13 @@ export default function DiagnosticTest() {
     const loadData = async () => {
       try {
         if (!user) return;
-        const exercises = await practiceService.generateDiagnosticQuiz(user.id);
+        
+        const [exercises, subjectsData] = await Promise.all([
+          practiceService.generateDiagnosticQuiz(user.id),
+          academicService.getSubjects()
+        ]);
+        
+        setSubjects(subjectsData);
 
         if (exercises.length === 0) {
           setQuestions([]);
@@ -131,6 +140,99 @@ export default function DiagnosticTest() {
       }
     }
   };
+
+  const getSubjectStyle = (subjectName: string, index: number) => {
+    const name = subjectName.toLowerCase();
+    if (name.includes('aritmética')) return { bg: 'bg-[#2563EB]', icon: <Calculator className="w-5 h-5 text-white" /> };
+    if (name.includes('álgebra')) return { bg: 'bg-[#9333EA]', icon: <Sigma className="w-5 h-5 text-white" /> };
+    if (name.includes('geometría')) return { bg: 'bg-[#16A34A]', icon: <Compass className="w-5 h-5 text-white" /> };
+    if (name.includes('trigo')) return { bg: 'bg-[#EA580C]', icon: <TrendingUp className="w-5 h-5 text-white" /> };
+    if (name.includes('cálculo')) return { bg: 'bg-[#DC2626]', icon: <Brain className="w-5 h-5 text-white" /> };
+    
+    const colors = ['bg-[#2563EB]', 'bg-[#9333EA]', 'bg-[#16A34A]', 'bg-[#EA580C]', 'bg-[#DC2626]'];
+    return { bg: colors[index % colors.length], icon: <BookOpen className="w-5 h-5 text-white" /> };
+  };
+
+  if (isIntroScreen) {
+    const subjectNames = subjects.map(s => s.name).join(', ');
+    return (
+      <div className="size-full flex flex-col bg-[#F8FAFC] overflow-auto pb-8">
+        <div className="bg-[#2563EB] px-6 pt-10 pb-12 rounded-b-[40px] shadow-lg flex flex-col items-center">
+          <div className="w-16 h-16 bg-white/20 rounded-[20px] flex items-center justify-center mb-4">
+            <Brain className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold text-white text-center mb-2">
+            Evaluación de Diagnóstico
+          </h1>
+          <p className="text-white/80 text-sm text-center">
+            Descubramos tu nivel para crear tu ruta personalizada
+          </p>
+        </div>
+
+        <div className="px-6 py-6 space-y-6 -mt-6 relative z-10 flex-1 flex flex-col">
+          <div className="bg-white rounded-[20px] shadow-sm border border-slate-100 p-2">
+            <div className="flex items-start gap-4 p-4 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                <BookOpen className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-sm">{questions.length} preguntas • {subjects.length} temas</h3>
+                <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">{subjectNames || "Aritmética, Álgebra, Geometría..."}</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-4 p-4 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center shrink-0">
+                <TrendingUp className="w-5 h-5 text-yellow-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-sm">Dificultad progresiva</h3>
+                <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">3 preguntas por tema: básico, intermedio y avanzado</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4 p-4">
+              <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center shrink-0">
+                <Sigma className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-sm">Ruta personalizada</h3>
+                <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">Al terminar generamos tu plan de estudio ideal</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-3">
+            {subjects.map((subject, idx) => {
+              const style = getSubjectStyle(subject.name, idx);
+              return (
+                <div key={subject.id} className={`${style.bg} rounded-[16px] w-[70px] h-[75px] flex flex-col items-center justify-center gap-1.5 shadow-sm`}>
+                  {style.icon}
+                  <span className="text-[10px] font-bold text-white text-center leading-none px-1">
+                    {subject.name.substring(0, 7)}{subject.name.length > 7 ? '.' : ''}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="bg-blue-50/70 border border-blue-100 rounded-[20px] p-5 mt-auto">
+            <p className="text-blue-800 text-sm text-center font-medium leading-relaxed">
+              No te preocupes si no sabes todas las respuestas — eso es exactamente lo que queremos detectar para ayudarte mejor.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setIsIntroScreen(false)}
+            className="w-full bg-[#2563EB] text-white py-4 rounded-[16px] font-bold shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
+          >
+            Comenzar evaluación
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="size-full flex flex-col bg-background">

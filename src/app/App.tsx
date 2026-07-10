@@ -20,6 +20,7 @@ import Challenges from './components/Challenges';
 import Groups from './components/Groups';
 import CreateGroup from './components/CreateGroup';
 import GroupDetail from './components/GroupDetail';
+import GroupExercises from './components/GroupExercises';
 import Leaderboard from './components/Leaderboard';
 import Profile from './components/Profile';
 import Store from './components/Store';
@@ -95,6 +96,7 @@ function AppRoutes() {
           <Route path="/groups" element={<Groups />} />
           <Route path="/groups/create" element={<CreateGroup />} />
           <Route path="/groups/:id" element={<GroupDetail />} />
+          <Route path="/groups/:id/exercises" element={<GroupExercises />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/:id" element={<PublicProfile />} />

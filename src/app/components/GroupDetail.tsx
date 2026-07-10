@@ -147,6 +147,13 @@ export default function GroupDetail() {
               </div>
             </div>
 
+            <button
+              onClick={() => navigate(`/groups/${id}/exercises`)}
+              className="w-full bg-primary hover:bg-blue-700 text-white py-4 rounded-[20px] font-bold text-lg transition-all shadow-lg shadow-primary/30 mb-6 flex items-center justify-center gap-2"
+            >
+              Iniciar con los ejercicios
+            </button>
+
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-1">Miembros del Grupo</h3>
