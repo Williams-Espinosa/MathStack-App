@@ -20,5 +20,9 @@ export const socialService = {
 
   submitChallengeResult(challengeId: string, score: number, timeTakenSeconds: number): Promise<ChallengeParticipantResponse> {
     return apiClient.post<ChallengeParticipantResponse>(`/social/challenges/${challengeId}/submit`, { score, timeTakenSeconds });
+  },
+
+  getGlobalChallenges(): Promise<any[]> {
+    return apiClient.get<any[]>('/social/challenges/global');
   }
 };

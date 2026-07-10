@@ -6,36 +6,32 @@ export default function Terms() {
 
   const sections = [
     {
-      title: '1. Aceptación de los términos',
-      content: 'Al usar MathStack, aceptas estos términos y condiciones. Si no estás de acuerdo, no uses la aplicación.'
+      title: '1. Aceptación de los Términos y Uso Educativo',
+      content: 'Al usar MathStack, aceptas estos términos y condiciones. MathStack está diseñado para uso personal y educativo, sin fines comerciales (licencia requerida para otros fines).'
     },
     {
-      title: '2. Responsabilidades del usuario',
+      title: '2. Marco Legal (Leyes y Normativas)',
+      content: 'Sustentado en el Artículo 3° Constitucional (educación como derecho fundamental apoyado en tecnologías) y la Ley General de Educación (Art. 14 y 16) que promueve el uso de TIC para el aprendizaje autónomo.'
+    },
+    {
+      title: '3. Actividades Prohibidas',
+      content: 'Prohibición estricta del uso de bots o trampas en retos. No puedes compartir contenido inapropiado, intentar vulnerar el sistema o comercializar tu cuenta.'
+    },
+    {
+      title: '4. Política de Gamificación y Recompensas',
+      content: 'Las recompensas se obtienen solo por aprendizaje real (máx. 1 sesión computada por día). Las monedas, XP y recompensas virtuales no son canjeables por dinero real. Contamos con una política anti-abuso en el sistema de puntos.'
+    },
+    {
+      title: '5. Política de Accesibilidad',
+      content: 'Garantizamos una interfaz con contraste WCAG AA, tamaño de fuente ajustable y notificaciones configurables por el usuario para evitar la fatiga de avisos.'
+    },
+    {
+      title: '6. Propiedad Intelectual y Derechos de Autor',
+      content: 'De acuerdo con la Ley Federal del Derecho de Autor, todo el código fuente, diseño de avatares y contenido educativo de MathStack está protegido como obra intelectual (registro ante INDAUTOR recomendado).'
+    },
+    {
+      title: '7. Responsabilidades del usuario',
       content: 'Eres responsable de mantener la confidencialidad de tu cuenta y contraseña. Debes notificarnos inmediatamente cualquier uso no autorizado.'
-    },
-    {
-      title: '3. Actividades prohibidas',
-      content: 'No puedes usar MathStack para: compartir contenido inapropiado, hacer trampa en los ejercicios, intentar hackear el sistema, o vender tu cuenta.'
-    },
-    {
-      title: '4. Retos y grupos',
-      content: 'Los retos grupales deben ser educativos y respetuosos. Nos reservamos el derecho de eliminar grupos o retos que violen estas normas.'
-    },
-    {
-      title: '5. Recompensas virtuales',
-      content: 'Las monedas, XP y otros elementos virtuales no tienen valor monetario real y no son transferibles fuera de la aplicación.'
-    },
-    {
-      title: '6. Terminación de cuenta',
-      content: 'Podemos suspender o terminar tu cuenta si violas estos términos. Puedes eliminar tu cuenta en cualquier momento desde la configuración.'
-    },
-    {
-      title: '7. Modificaciones',
-      content: 'Nos reservamos el derecho de modificar estos términos en cualquier momento. Te notificaremos de cambios importantes.'
-    },
-    {
-      title: '8. Propiedad intelectual',
-      content: 'Todo el contenido de MathStack, incluyendo lecciones, ejercicios y diseño, está protegido por derechos de autor.'
     }
   ];
 

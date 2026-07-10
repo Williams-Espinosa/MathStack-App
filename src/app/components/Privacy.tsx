@@ -7,13 +7,18 @@ export default function Privacy() {
   const sections = [
     {
       icon: Database,
-      title: 'Información que recopilamos',
-      content: 'Recopilamos información personal como nombre, correo electrónico y datos de uso de la aplicación para mejorar tu experiencia de aprendizaje.'
+      title: 'Política de Privacidad',
+      content: 'Recolección mínima de datos con finalidad exclusivamente educativa. No vendemos datos a terceros. Tienes derecho a la eliminación de tu cuenta desde la app.'
+    },
+    {
+      icon: Lock,
+      title: 'Aviso de Privacidad (LFPDPPP)',
+      content: 'Cumplimos con la Ley Federal de Protección de Datos Personales en Posesión de Particulares. Tu consentimiento es explícito y revocable y regulamos el resguardo de datos.'
     },
     {
       icon: Shield,
-      title: 'Datos de autenticación',
-      content: 'Utilizamos Firebase Auth para gestionar de forma segura tus credenciales. Tus contraseñas están encriptadas y nunca se almacenan en texto plano.'
+      title: 'Política de Seguridad',
+      content: 'Tus credenciales están seguras: usamos Firebase Auth (contraseñas con hash), comunicaciones cifradas TLS, sesiones con expiración automática (JWT) y monitoreo de accesos inusuales.'
     },
     {
       icon: Eye,
@@ -23,17 +28,12 @@ export default function Privacy() {
     {
       icon: Bell,
       title: 'Notificaciones',
-      content: 'Enviamos notificaciones para recordarte tus sesiones de estudio y nuevos retos. Puedes desactivarlas en cualquier momento.'
+      content: 'Enviamos notificaciones para recordarte tus sesiones de estudio y nuevos retos. Puedes configurarlas para evitar la fatiga de avisos.'
     },
     {
       icon: Mail,
       title: 'Comunicaciones por correo',
       content: 'Podemos enviarte correos relacionados con tu cuenta, logros y actualizaciones importantes de la aplicación.'
-    },
-    {
-      icon: Lock,
-      title: 'Tus derechos',
-      content: 'Tienes derecho a acceder, modificar o eliminar tus datos personales en cualquier momento desde la configuración de tu cuenta.'
     }
   ];
 

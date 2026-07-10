@@ -38,7 +38,14 @@ import PublicProfile from './components/PublicProfile';
 function AppRoutes() {
   const [showSplash, setShowSplash] = useState(true);
   const { isAuthenticated, isLoading } = useAuth();
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => {
+    return localStorage.getItem('hasSeenOnboarding') === 'true';
+  });
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    setHasSeenOnboarding(true);
+  };
   const { prompt, install, canInstall, isIOS } = usePWAInstall();
   usePWASetup();
 
@@ -74,7 +81,7 @@ function AppRoutes() {
               !isAuthenticated ? <Navigate to="/login" /> :
                 <Navigate to="/dashboard" />
           } />
-          <Route path="/onboarding" element={<Onboarding onComplete={() => setHasSeenOnboarding(true)} />} />
+          <Route path="/onboarding" element={<Onboarding onComplete={handleOnboardingComplete} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />

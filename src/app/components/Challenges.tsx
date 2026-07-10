@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { socialService } from '../services/socialService';
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router';
 import { Trophy, Clock, Coins, Zap, Users, CheckCircle2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import BottomNav from './BottomNav';
 
 interface Challenge {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   difficulty: 'Fácil' | 'Medio' | 'Difícil';
@@ -30,7 +32,30 @@ export default function Challenges() {
   const navigate = useNavigate();
   const [challenges, setChallenges] = useState<Challenge[]>(INITIAL);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const [loading, setLoading] = useState<number | null>(null);
+  const [loading, setLoading] = useState<string | number | null>(null);
+
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      try {
+        const data = await socialService.getGlobalChallenges();
+        const formatted: Challenge[] = data.map(c => ({
+          id: c.id,
+          title: c.title,
+          description: c.description,
+          difficulty: c.difficulty as any,
+          timeLeft: c.endDate ? new Date(c.endDate).toLocaleDateString() : 'Sin límite',
+          reward: { coins: c.rewardCoins, xp: c.rewardXP },
+          progress: 0,
+          participants: c.participants || 0,
+          joined: false
+        }));
+        setChallenges(formatted);
+      } catch (err) {
+        toast.error('Error al cargar los retos');
+      }
+    };
+    fetchChallenges();
+  }, []);
 
   const showToast = (title: string, joined: boolean) => {
     const id = Date.now();
