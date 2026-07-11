@@ -20,5 +20,9 @@ export const practiceService = {
 
   submitDiagnostic(userId: string, answers: { exerciseId: string; isCorrect: boolean }[]): Promise<any> {
     return apiClient.post(`/practice/users/${userId}/diagnostics`, { answers });
+  },
+
+  getLearningPath(userId: string): Promise<any> {
+    return apiClient.get(`/practice/users/${userId}/learning-path`);
   }
 };

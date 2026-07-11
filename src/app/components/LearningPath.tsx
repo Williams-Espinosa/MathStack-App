@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { ArrowLeft, Lock, Check, Circle, Zap } from 'lucide-react';
 import { academicService } from '../services/academicService';
+import { practiceService } from '../services/practiceService';
+import { useAuth } from '../contexts/AuthContext';
 import { SubjectResponse, LessonResponse } from '../types/api';
 import { toast } from 'sonner';
 
@@ -9,30 +11,20 @@ export default function LearningPath() {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState<SubjectResponse[]>([]);
   const [lessons, setLessons] = useState<(LessonResponse & { status: string, xp: number })[]>([]);
-  const [currentSubject, setCurrentSubject] = useState<SubjectResponse | null>(null);
+  const [currentSubject, setCurrentSubject] = useState<{id: number, name: string} | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadLearningPath = async () => {
+      if (!user) return;
       setIsLoading(true);
       try {
-        const subjectsData = await academicService.getSubjects();
-        setSubjects(subjectsData);
+        const pathData = await practiceService.getLearningPath(user.id);
+        
+        setCurrentSubject({ id: pathData.subjectId, name: pathData.subjectName });
+        setLessons(pathData.lessons);
 
-        if (subjectsData.length > 0) {
-          const firstSubject = subjectsData[0];
-          setCurrentSubject(firstSubject);
-
-          const lessonsData = await academicService.getLessons(firstSubject.id);
-
-          const lessonsWithUIState = lessonsData.map((lesson, idx) => ({
-            ...lesson,
-            status: idx === 0 ? 'completed' : idx === 1 ? 'available' : 'locked',
-            xp: lesson.difficultyLevel * 25
-          }));
-
-          setLessons(lessonsWithUIState);
-        }
       } catch (error: any) {
         toast.error(error.message || 'Error al cargar la ruta de aprendizaje');
       } finally {
@@ -41,7 +33,7 @@ export default function LearningPath() {
     };
 
     loadLearningPath();
-  }, []);
+  }, [user]);
 
   const getStatusIcon = (status: string) => {
     if (status === 'completed') return <Check className="w-6 h-6 text-white" />;

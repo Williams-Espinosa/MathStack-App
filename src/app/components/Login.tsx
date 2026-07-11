@@ -27,7 +27,7 @@ export default function Login() {
           throw new Error('No se pudo obtener el email de Google');
         }
 
-        const response = await authService.loginWithGoogle({ 
+        const response = await authService.loginWithGoogle({
           email: userInfo.email,
           username: userInfo.name || userInfo.email.split('@')[0],
           firebaseUid: userInfo.sub
@@ -148,16 +148,6 @@ export default function Login() {
                   />
                 </div>
               </div>
-
-              <div>
-                <Link
-                  to="/forgot-password"
-                  className="text-sm text-primary hover:underline"
-                >
-                  ¿Olvidaste tu contraseña?
-                </Link>
-              </div>
-
               <button
                 type="submit"
                 disabled={isSubmitting}

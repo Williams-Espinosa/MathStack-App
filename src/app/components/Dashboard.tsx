@@ -137,7 +137,7 @@ export default function Dashboard() {
 
         <div className="px-6 py-6 space-y-6">
           <button
-            onClick={() => navigate('/lesson/1')}
+            onClick={() => navigate('/learning-path')}
             className="w-full bg-gradient-to-r from-success to-green-600 rounded-[20px] p-6 shadow-lg hover:shadow-xl transition-shadow"
           >
             <div className="flex items-center justify-between">
