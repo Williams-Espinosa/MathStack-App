@@ -15,7 +15,7 @@ export class ApiException extends Error {
   }
 }
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://mathstack-backend-production.up.railway.app/api/v1';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 
 export const apiClient = {
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

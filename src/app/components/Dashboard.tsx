@@ -13,6 +13,7 @@ export default function Dashboard() {
   const { user, gamificationStats } = useAuth();
 
   const [subjects, setSubjects] = useState<(SubjectResponse & { progress: number, lessons: number, total: number, color: string })[]>([]);
+  const [firstLessonId, setFirstLessonId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeAvatarUrl, setActiveAvatarUrl] = useState<string>('');
   const hasUnreadNotifications = false;
@@ -20,20 +21,32 @@ export default function Dashboard() {
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        const subjectsData = await academicService.getSubjects();
-
-        const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500'];
-        const subjectsWithProgress = subjectsData.map((sub, idx) => ({
-          ...sub,
-          progress: 0,
-          lessons: 0,
-          total: 10,
-          color: colors[idx % colors.length]
-        }));
-
-        setSubjects(subjectsWithProgress);
-
         if (user) {
+          const learningPaths = await practiceService.getLearningPath(user.id);
+          
+          const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500'];
+          const subjectsWithProgress = learningPaths.map((path, idx) => {
+            const total = path.lessons.length;
+            const completed = path.lessons.filter(l => l.status === 'completed').length;
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            return {
+              id: path.subjectId,
+              name: path.subjectName,
+              progress,
+              lessons: completed,
+              total,
+              color: colors[idx % colors.length]
+            };
+          });
+
+          setSubjects(subjectsWithProgress);
+
+          if (learningPaths.length > 0 && learningPaths[0].lessons.length > 0) {
+            const nextLesson = learningPaths[0].lessons.find(l => l.status !== 'completed') || learningPaths[0].lessons[0];
+            setFirstLessonId(nextLesson.id);
+          }
+
           const [items, inventory] = await Promise.all([
             storeService.getItems(),
             storeService.getInventory(user.id)
@@ -68,9 +81,6 @@ export default function Dashboard() {
         const diffTime = Math.abs(today.getTime() - diagnosticDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         if (diffDays > 10) {
-          toast('¡Es hora de evaluar tu progreso!', {
-            description: 'Han pasado más de 10 días desde tu última prueba.',
-          });
           navigate('/diagnostic');
         }
       }
@@ -137,7 +147,11 @@ export default function Dashboard() {
 
         <div className="px-6 py-6 space-y-6">
           <button
+<<<<<<< Updated upstream
             onClick={() => navigate('/learning-path')}
+=======
+            onClick={() => firstLessonId ? navigate(`/lesson/${firstLessonId}`) : navigate('/learning-path')}
+>>>>>>> Stashed changes
             className="w-full bg-gradient-to-r from-success to-green-600 rounded-[20px] p-6 shadow-lg hover:shadow-xl transition-shadow"
           >
             <div className="flex items-center justify-between">
@@ -169,8 +183,12 @@ export default function Dashboard() {
               <div className="text-center py-4 text-muted-foreground">Cargando progreso...</div>
             ) : (
               <div className="space-y-3">
-                {subjects.map((subject, index) => (
-                  <div key={index} className="bg-card rounded-[20px] p-5 shadow-sm border border-border">
+                {subjects.map((subject) => (
+                  <button
+                    key={subject.id}
+                    onClick={() => navigate(`/learning-path?subjectId=${subject.id}`)}
+                    className="w-full text-left bg-card rounded-[20px] p-5 shadow-sm border border-border hover:shadow-md transition-shadow cursor-pointer block"
+                  >
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-medium text-foreground">{subject.name}</h4>
                       <span className="text-sm text-muted-foreground">
@@ -184,7 +202,7 @@ export default function Dashboard() {
                       ></div>
                     </div>
                     <p className="text-sm text-muted-foreground mt-2">{subject.progress}% completado</p>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}

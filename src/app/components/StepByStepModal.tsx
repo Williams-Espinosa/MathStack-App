@@ -10,7 +10,9 @@ interface StepByStepModalProps {
 
 export default function StepByStepModal({ data, onClose }: StepByStepModalProps) {
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = data.steps.length;
+  const steps = data?.steps || [];
+  const rules = data?.rules || [];
+  const totalSteps = steps.length;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background h-screen w-full">
@@ -27,7 +29,7 @@ export default function StepByStepModal({ data, onClose }: StepByStepModalProps)
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
-        {data.rules && data.rules.length > 0 && (
+        {rules.length > 0 && (
           <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-4 text-blue-700">
               <Scale className="w-5 h-5" />
@@ -35,7 +37,7 @@ export default function StepByStepModal({ data, onClose }: StepByStepModalProps)
             </div>
 
             <div className="space-y-4">
-              {data.rules.map((rule, idx) => (
+              {rules.map((rule, idx) => (
                 <div key={idx} className="border border-border rounded-xl p-4 bg-background">
                   <p className="font-bold text-foreground text-sm mb-2">{rule.title}</p>
                   <div className="bg-blue-50 text-blue-700 font-mono text-center p-3 rounded-lg mb-2 text-sm font-semibold">
@@ -48,22 +50,27 @@ export default function StepByStepModal({ data, onClose }: StepByStepModalProps)
           </div>
         )}
 
-        <div>
-          <div className="flex items-center justify-between mb-4 px-1">
-            <div className="flex items-center gap-2 text-foreground">
-              <BookOpen className="w-5 h-5" />
-              <h3 className="font-bold">Solución detallada</h3>
-            </div>
-            <span className="text-sm text-muted-foreground font-medium">{currentStep}/{totalSteps} pasos</span>
+        {totalSteps === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            No hay pasos detallados disponibles para este ejercicio.
           </div>
+        ) : (
+          <div>
+            <div className="flex items-center justify-between mb-4 px-1">
+              <div className="flex items-center gap-2 text-foreground">
+                <BookOpen className="w-5 h-5" />
+                <h3 className="font-bold">Solución detallada</h3>
+              </div>
+              <span className="text-sm text-muted-foreground font-medium">{currentStep}/{totalSteps} pasos</span>
+            </div>
 
-          <div className="space-y-4">
-            <AnimatePresence initial={false}>
-              {data.steps.slice(0, currentStep).map((step, idx) => {
-                const isCurrent = idx + 1 === currentStep;
-                return (
-                  <motion.div
-                    key={step.stepNumber}
+            <div className="space-y-4">
+              <AnimatePresence initial={false}>
+                {steps.slice(0, currentStep).map((step, idx) => {
+                  const isCurrent = idx + 1 === currentStep;
+                  return (
+                    <motion.div
+                      key={step.stepNumber || `fallback-step-${idx}`}
                     initial={{ opacity: 0, height: 0, scale: 0.9 }}
                     animate={{ opacity: 1, height: 'auto', scale: 1 }}
                     transition={{ duration: 0.3 }}
@@ -122,7 +129,8 @@ export default function StepByStepModal({ data, onClose }: StepByStepModalProps)
               </button>
             </motion.div>
           )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

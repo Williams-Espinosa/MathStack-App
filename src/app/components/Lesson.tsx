@@ -26,6 +26,7 @@ export default function Lesson() {
   useEffect(() => {
     const fetchLesson = async () => {
       if (!id) return;
+      
       try {
         setLoading(true);
         const data = await academicService.getLessonById(id);
@@ -39,7 +40,16 @@ export default function Lesson() {
               ...parsed
             });
           } catch (e) {
-            console.error('Error parsing lesson content JSON:', e);
+            console.warn('Contenido no JSON detectado, usando fallback de texto.');
+            setParsedContent({
+              estimatedTime: '10 min',
+              sections: [
+                {
+                  type: 'text',
+                  content: data.content
+                }
+              ]
+            });
           }
         }
       } catch (error) {

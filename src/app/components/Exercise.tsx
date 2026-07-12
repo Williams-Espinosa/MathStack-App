@@ -78,13 +78,20 @@ export default function Exercise() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentIndex < exercises.length - 1) {
       setCurrentIndex(currentIndex + 1);
       setAnswer('');
       setShowResult(null);
       setShowHint(false);
     } else {
+      if (user && lessonId) {
+        try {
+          await practiceService.completeLesson(user.id, lessonId);
+        } catch (e) {
+          console.error("Error completing lesson:", e);
+        }
+      }
       toast.success('¡Has completado todos los ejercicios!');
       navigate('/learning-path');
     }

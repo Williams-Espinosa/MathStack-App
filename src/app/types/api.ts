@@ -133,3 +133,37 @@ export interface ExerciseContentJSON {
   hint: string;
   stepByStep?: StepByStepData;
 }
+
+export interface DiagnosticAnswerDto {
+  exerciseId: string;
+  isCorrect: boolean;
+}
+
+export interface SubmitDiagnosticRequest {
+  answers: DiagnosticAnswerDto[];
+}
+
+export interface DiagnosticSubjectResultResponse {
+  subjectId: number;
+  subject: string;
+  score: number;
+}
+
+export interface DiagnosticQuestionResponse extends ExerciseResponse {
+  subjectId: number;
+  subjectName: string;
+}
+
+export interface LearningPathLessonResponse {
+  id: string;
+  title: string;
+  difficultyLevel: number;
+  xp: number;
+  status: string;
+}
+
+export interface LearningPathResponse {
+  subjectId: number;
+  subjectName: string;
+  lessons: LearningPathLessonResponse[];
+}

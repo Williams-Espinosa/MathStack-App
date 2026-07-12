@@ -1,17 +1,30 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { ArrowLeft, Lock, Check, Circle, Zap } from 'lucide-react';
+<<<<<<< Updated upstream
 import { academicService } from '../services/academicService';
 import { practiceService } from '../services/practiceService';
 import { useAuth } from '../contexts/AuthContext';
 import { SubjectResponse, LessonResponse } from '../types/api';
+=======
+import { practiceService } from '../services/practiceService';
+import { LearningPathResponse, LearningPathLessonResponse } from '../types/api';
+import { useAuth } from '../contexts/AuthContext';
+>>>>>>> Stashed changes
 import { toast } from 'sonner';
 
 export default function LearningPath() {
   const navigate = useNavigate();
+<<<<<<< Updated upstream
   const [subjects, setSubjects] = useState<SubjectResponse[]>([]);
   const [lessons, setLessons] = useState<(LessonResponse & { status: string, xp: number })[]>([]);
   const [currentSubject, setCurrentSubject] = useState<{id: number, name: string} | null>(null);
+=======
+  const location = useLocation();
+  const { user } = useAuth();
+  const [lessons, setLessons] = useState<LearningPathLessonResponse[]>([]);
+  const [currentSubject, setCurrentSubject] = useState<LearningPathResponse | null>(null);
+>>>>>>> Stashed changes
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
@@ -20,11 +33,29 @@ export default function LearningPath() {
       if (!user) return;
       setIsLoading(true);
       try {
+<<<<<<< Updated upstream
         const pathData = await practiceService.getLearningPath(user.id);
         
         setCurrentSubject({ id: pathData.subjectId, name: pathData.subjectName });
         setLessons(pathData.lessons);
 
+=======
+        const learningPaths = await practiceService.getLearningPath(user.id);
+
+        if (learningPaths.length > 0) {
+          const queryParams = new URLSearchParams(location.search);
+          const subjectIdParam = queryParams.get('subjectId');
+          
+          let activePath = learningPaths[0];
+          if (subjectIdParam) {
+            const found = learningPaths.find(p => p.subjectId.toString() === subjectIdParam);
+            if (found) activePath = found;
+          }
+
+          setCurrentSubject(activePath);
+          setLessons(activePath.lessons);
+        }
+>>>>>>> Stashed changes
       } catch (error: any) {
         toast.error(error.message || 'Error al cargar la ruta de aprendizaje');
       } finally {
@@ -33,7 +64,11 @@ export default function LearningPath() {
     };
 
     loadLearningPath();
+<<<<<<< Updated upstream
   }, [user]);
+=======
+  }, [user, location.search]);
+>>>>>>> Stashed changes
 
   const getStatusIcon = (status: string) => {
     if (status === 'completed') return <Check className="w-6 h-6 text-white" />;

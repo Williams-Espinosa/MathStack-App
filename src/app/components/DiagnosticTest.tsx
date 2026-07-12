@@ -5,8 +5,9 @@ import { toast } from 'sonner';
 import { academicService } from '../services/academicService';
 import { practiceService } from '../services/practiceService';
 import { useAuth } from '../contexts/AuthContext';
-import { ExerciseResponse, SubjectResponse } from '../types/api';
+import { ExerciseResponse, SubjectResponse, DiagnosticQuestionResponse } from '../types/api';
 import { Brain, BookOpen, TrendingUp, Sigma, Calculator, Compass, Layers, Binary, Search } from 'lucide-react';
+import { isMathEquivalent } from '../utils/mathUtils';
 
 interface DiagnosticQuestion {
   subjectId: number;
@@ -48,7 +49,7 @@ export default function DiagnosticTest() {
           return;
         }
 
-        const loadedQuestions = exercises.map(randomExercise => {
+        const loadedQuestions = exercises.map((randomExercise: DiagnosticQuestionResponse) => {
           let displayContent = randomExercise.content;
           let correctAnswer = randomExercise.conceptTested || '';
           let options: string[] | undefined = undefined;
@@ -66,8 +67,8 @@ export default function DiagnosticTest() {
           }
 
           return {
-            subjectId: 0,
-            subjectName: 'Diagnóstico',
+            subjectId: randomExercise.subjectId,
+            subjectName: randomExercise.subjectName,
             exerciseId: randomExercise.id,
             displayContent,
             correctAnswer,
@@ -101,8 +102,12 @@ export default function DiagnosticTest() {
     return (
       <div className="size-full flex flex-col bg-background">
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-          <p className="text-muted-foreground text-lg mb-4">No hay preguntas disponibles.</p>
-          <button onClick={() => navigate('/dashboard')} className="text-primary hover:underline font-medium">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <BookOpen className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <p className="text-foreground font-bold text-xl mb-2">No hay preguntas disponibles</p>
+          <p className="text-muted-foreground text-sm mb-6">Por el momento no tenemos ejercicios cargados en la base de datos para generar tu diagnóstico.</p>
+          <button onClick={() => navigate('/dashboard')} className="bg-primary text-white py-3 px-8 rounded-full font-medium shadow-md hover:bg-blue-700 transition-colors">
             Volver al Inicio
           </button>
         </div>
@@ -114,7 +119,7 @@ export default function DiagnosticTest() {
   const progress = ((currentQuestion + 1) / questions.length) * 100;
 
   const handleNext = async () => {
-    const isCorrect = answer.trim().toLowerCase() === question.correctAnswer.trim().toLowerCase();
+    const isCorrect = isMathEquivalent(answer, question.correctAnswer);
 
     const newResults = [...results, { subjectId: question.subjectId, exerciseId: question.exerciseId, isCorrect }];
     setResults(newResults);

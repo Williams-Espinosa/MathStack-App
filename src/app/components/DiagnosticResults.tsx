@@ -10,14 +10,7 @@ export default function DiagnosticResults() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const results = location.state?.results || [
-    { subject: 'Aritmética', score: 33, subjectId: 1 },
-    { subject: 'Álgebra', score: 67, subjectId: 2 },
-    { subject: 'Cálculo Diferencial', score: 33, subjectId: 3 },
-    { subject: 'Cálculo en una variable', score: 0, subjectId: 4 },
-    { subject: 'Cálculo Integral', score: 0, subjectId: 5 },
-    { subject: 'Ecuaciones diferenciales', score: 0, subjectId: 6 }
-  ];
+  const safeResults = Array.isArray(location.state?.results) ? location.state.results : [];
 
   const [lessonsBySubject, setLessonsBySubject] = useState<Record<string, LessonResponse[]>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -28,7 +21,7 @@ export default function DiagnosticResults() {
         const subjectsData = await academicService.getSubjects();
         const lessonsMap: Record<string, LessonResponse[]> = {};
 
-        for (const result of results) {
+        for (const result of safeResults) {
           const subject = subjectsData.find(s => s.name.toLowerCase() === result.subject.toLowerCase() || s.id === result.subjectId);
           if (subject) {
             const subjectLessons = await academicService.getLessons(subject.id);
@@ -46,12 +39,12 @@ export default function DiagnosticResults() {
     };
 
     loadLessons();
-  }, [results]);
+  }, [safeResults]);
 
-  const sortedResults = [...results].sort((a, b) => a.score - b.score);
-  const totalScore = results.reduce((acc: number, curr: any) => acc + curr.score, 0);
-  const averageScore = Math.round(totalScore / (results.length || 1));
-  const priorityAreas = results.filter((r: any) => r.score <= 50).length;
+  const sortedResults = [...safeResults].sort((a, b) => a.score - b.score);
+  const totalScore = safeResults.reduce((acc: number, curr: any) => acc + curr.score, 0);
+  const averageScore = safeResults.length > 0 ? Math.round(totalScore / safeResults.length) : 0;
+  const priorityAreas = safeResults.filter((r: any) => r.score <= 50).length;
 
   const totalLessonsInRoute = Object.values(lessonsBySubject).reduce((acc, curr) => acc + curr.length, 0);
 
@@ -124,10 +117,10 @@ export default function DiagnosticResults() {
 
         <div className="bg-white rounded-[20px] p-6 shadow-sm border border-slate-100">
           <h3 className="font-bold text-slate-800 text-lg mb-1">Tu perfil de habilidades</h3>
-          <p className="text-sm text-slate-500 mb-4">Basado en tus {results.length * 3} respuestas</p>
+          <p className="text-sm text-slate-500 mb-4">Basado en tus {safeResults.length * 3} respuestas</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={results} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <RadarChart data={safeResults} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
                 <PolarGrid stroke="#e2e8f0" />
                 <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 11 }} />
                 <PolarRadiusAxis angle={90} domain={[0, 100]} tick={false} axisLine={false} />
