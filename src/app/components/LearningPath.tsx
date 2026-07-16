@@ -105,9 +105,14 @@ export default function LearningPath() {
                             <h3 className="font-semibold text-foreground mb-1">
                               Lección {index + 1}
                             </h3>
-                            <p className="text-sm text-muted-foreground mb-2">
+                            <p className="text-sm text-muted-foreground mb-1">
                               {lesson.title}
                             </p>
+                            {lesson.subjectName && (
+                              <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary mb-2">
+                                {lesson.subjectName}
+                              </span>
+                            )}
                             <div className="flex items-center gap-2">
                               <Zap className="w-4 h-4 text-warning" />
                               <span className="text-sm font-medium text-warning">
