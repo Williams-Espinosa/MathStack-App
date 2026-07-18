@@ -46,7 +46,9 @@ export default function Exercise() {
   
   if (currentExercise?.content) {
     try {
-      parsedContent = JSON.parse(currentExercise.content);
+      parsedContent = typeof currentExercise.content === 'object' 
+        ? (currentExercise.content as unknown as ExerciseContentJSON) 
+        : JSON.parse(currentExercise.content);
       displayContent = parsedContent?.question || displayContent;
       if (parsedContent?.correctAnswer) {
         correctAns = parsedContent.correctAnswer;

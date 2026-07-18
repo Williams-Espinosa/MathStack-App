@@ -54,7 +54,9 @@ export default function DiagnosticTest() {
           let options: string[] | undefined = undefined;
 
           try {
-            const parsed = JSON.parse(randomExercise.content);
+            const parsed = typeof randomExercise.content === 'object' 
+              ? (randomExercise.content as any) 
+              : JSON.parse(randomExercise.content);
             displayContent = parsed.question || displayContent;
             if (parsed.correctAnswer) {
               correctAnswer = parsed.correctAnswer;
