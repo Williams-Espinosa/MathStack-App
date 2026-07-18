@@ -135,17 +135,36 @@ export default function Exercise() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="text-xl text-foreground">x =</span>
-              <input
-                type="text"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Tu respuesta"
-                className="flex-1 px-6 py-4 bg-background border-2 border-border rounded-[20px] text-xl text-center focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                disabled={showResult === 'correct' || isSubmitting}
-              />
-            </div>
+            {parsedContent?.options && Array.isArray(parsedContent.options) ? (
+              <div className="flex flex-col gap-3">
+                {parsedContent.options.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setAnswer(opt)}
+                    className={`px-6 py-4 rounded-[20px] text-lg font-medium transition-all ${
+                      answer === opt
+                        ? 'bg-primary text-white shadow-md'
+                        : 'bg-muted hover:bg-muted/80 text-foreground'
+                    }`}
+                    disabled={showResult === 'correct' || isSubmitting}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <span className="text-xl text-foreground">x =</span>
+                <input
+                  type="text"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="Tu respuesta"
+                  className="flex-1 px-6 py-4 bg-background border-2 border-border rounded-[20px] text-xl text-center focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  disabled={showResult === 'correct' || isSubmitting}
+                />
+              </div>
+            )}
           </div>
 
           {showHint && (

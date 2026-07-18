@@ -133,4 +133,5 @@ export interface ExerciseContentJSON {
   correctAnswer: string;
   hint: string;
   stepByStep?: StepByStepData;
+  options?: string[];
 }
