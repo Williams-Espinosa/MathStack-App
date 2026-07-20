@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Lightbulb, CheckCircle, XCircle, Zap, Coins, Trophy, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useAuth } from '../contexts/AuthContext';
+import { userService } from '../services/userService';
 
 interface Question {
   id: number;
@@ -87,6 +89,8 @@ export default function ChallengeExercise() {
   const { id } = useParams<{ id: string }>();
   const data = (id && CHALLENGE_DATA[id]) ? CHALLENGE_DATA[id] : DEFAULT;
 
+  const { user, gamificationStats, refreshProfile } = useAuth();
+
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [confirmed, setConfirmed] = useState(false);
@@ -108,9 +112,21 @@ export default function ChallengeExercise() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (current + 1 >= data.questions.length) {
       setFinished(true);
+      if (user && gamificationStats) {
+        try {
+          const earnedCoins = score === data.questions.length ? data.coins : Math.floor(data.coins * score / data.questions.length);
+          await userService.updateGamificationStats(user.id, {
+            xpPoints: gamificationStats.xpPoints + totalXp,
+            coins: gamificationStats.coins + earnedCoins
+          });
+          await refreshProfile();
+        } catch (error) {
+          console.error('Failed to update stats:', error);
+        }
+      }
     } else {
       setCurrent((c) => c + 1);
       setSelected(null);
