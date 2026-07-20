@@ -123,6 +123,12 @@ export default function ChallengeExercise() {
             coins: gamificationStats.coins + earnedCoins
           });
           await refreshProfile();
+          
+          const completedIds = JSON.parse(localStorage.getItem('completed_challenges') || '[]');
+          if (id && !completedIds.includes(id)) {
+            completedIds.push(id);
+            localStorage.setItem('completed_challenges', JSON.stringify(completedIds));
+          }
         } catch (error) {
           console.error('Failed to update stats:', error);
         }
@@ -190,12 +196,6 @@ export default function ChallengeExercise() {
             className="w-full bg-primary hover:bg-blue-700 text-white py-4 rounded-[20px] font-semibold transition-colors shadow-lg flex items-center justify-center gap-2"
           >
             Volver a retos <ChevronRight className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => { setCurrent(0); setSelected(null); setConfirmed(false); setShowHint(false); setScore(0); setTotalXp(0); setFinished(false); }}
-            className="w-full bg-card border border-border text-foreground py-4 rounded-[20px] font-medium transition-colors"
-          >
-            Reintentar reto
           </button>
         </div>
       </div>

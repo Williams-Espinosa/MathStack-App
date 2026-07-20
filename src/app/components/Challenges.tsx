@@ -16,6 +16,7 @@ interface Challenge {
   progress: number;
   participants: number;
   joined: boolean;
+  completed?: boolean;
 }
 
 const INITIAL: Challenge[] = [];
@@ -38,6 +39,8 @@ export default function Challenges() {
     const fetchChallenges = async () => {
       try {
         const data = await socialService.getGlobalChallenges();
+        const completedIds = JSON.parse(localStorage.getItem('completed_challenges') || '[]');
+
         const formatted: Challenge[] = data.map(c => {
           let diffStr = c.difficulty || 'Fácil';
           const lower = diffStr.toLowerCase();
@@ -46,6 +49,8 @@ export default function Challenges() {
           else if (lower === 'hard' || lower.includes('dif')) diffStr = 'Difícil';
           else diffStr = 'Fácil';
 
+          const isCompleted = completedIds.includes(c.id.toString()) || completedIds.includes(c.id);
+
           return {
             id: c.id,
             title: c.title,
@@ -53,9 +58,10 @@ export default function Challenges() {
             difficulty: diffStr as any,
             timeLeft: c.endDate ? new Date(c.endDate).toLocaleDateString() : 'Sin límite',
             reward: { coins: c.rewardCoins || 0, xp: c.rewardXP || 0 },
-            progress: 0,
+            progress: isCompleted ? 100 : 0,
             participants: c.participants || 0,
-            joined: false
+            joined: isCompleted ? true : false,
+            completed: isCompleted
           };
         });
         setChallenges(formatted);
@@ -246,7 +252,15 @@ function ChallengeCard({
           <span>{challenge.participants} participantes</span>
         </div>
 
-        {challenge.joined ? (
+        {challenge.completed ? (
+          <button
+            disabled
+            className="px-5 py-2 rounded-full text-sm font-semibold bg-green-500 text-white shadow-md flex items-center gap-2 transition-all opacity-80 cursor-not-allowed"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            Completado
+          </button>
+        ) : challenge.joined ? (
           <button
             onClick={onContinue}
             className="px-5 py-2 rounded-full text-sm font-semibold bg-primary hover:bg-blue-700 text-white shadow-md shadow-primary/30 flex items-center gap-2 transition-all"
