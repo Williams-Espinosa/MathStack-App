@@ -163,7 +163,9 @@ export default function DiagnosticResults() {
                         style={{ width: `${Math.max(item.score, 5)}%` }}
                       ></div>
                     </div>
-                    <span className="font-bold text-slate-800 text-sm w-8 text-right">{item.score}%</span>
+                    <span className="font-bold text-slate-800 text-sm min-w-8 text-right">
+                      {Math.round(item.score * 10) / 10}%
+                    </span>
                   </div>
                 </div>
               );
