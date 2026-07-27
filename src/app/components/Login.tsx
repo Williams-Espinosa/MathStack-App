@@ -54,6 +54,10 @@ export default function Login() {
     }
   }, []);
 
+  const handleSetPassword = () => {
+    navigate('/set-password', { state: { email } });
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
@@ -227,6 +231,13 @@ export default function Login() {
                     className="w-full bg-primary hover:bg-blue-700 disabled:bg-muted disabled:text-muted-foreground text-white py-4 rounded-[20px] font-medium transition-colors shadow-lg mt-4"
                   >
                     {isSubmitting ? 'Verificando...' : 'Verificar código'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSetPassword}
+                    className="w-full bg-secondary hover:bg-gray-600 text-white py-4 rounded-[20px] font-medium transition-colors shadow-lg mt-2"
+                  >
+                    Establecer contraseña
                   </button>
                   <button
                     type="button"
