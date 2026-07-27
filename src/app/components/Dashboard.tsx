@@ -20,14 +20,27 @@ export default function Dashboard() {
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        const subjectsData = await academicService.getSubjects();
+        let subjectsProgressData = [];
+        if (user) {
+          try {
+            subjectsProgressData = await practiceService.getSubjectsProgress(user.id);
+          } catch (e) {
+            console.error('Error loading subject progress:', e);
+            (window as any)['progressError'] = e;
+            subjectsProgressData = await academicService.getSubjects();
+          }
+        } else {
+          subjectsProgressData = await academicService.getSubjects();
+        }
 
         const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500'];
-        const subjectsWithProgress = subjectsData.map((sub, idx) => ({
+        const subjectsWithProgress = subjectsProgressData.map((sub: any, idx: number) => ({
           ...sub,
-          progress: 0,
-          lessons: 0,
-          total: 10,
+          name: sub.subjectName || sub.name,
+          progress: sub.progressPercentage ?? 0,
+          lessons: sub.completedLessons ?? 0,
+          total: sub.totalLessons ?? 10,
+          isMastered: sub.isMastered ?? false,
           color: colors[idx % colors.length]
         }));
 
@@ -38,7 +51,7 @@ export default function Dashboard() {
             storeService.getItems(),
             storeService.getInventory(user.id)
           ]);
-          
+
           const equipped = inventory.find(inv => inv.isEquipped);
           if (equipped) {
             const item = items.find(i => i.id === equipped.itemId);
@@ -183,9 +196,18 @@ export default function Dashboard() {
                         style={{ width: `${subject.progress}%` }}
                       ></div>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-2">{subject.progress}% completado</p>
+                    {subject.isMastered ? (
+                      <p className="text-sm text-success mt-2 font-medium">¡Tema Dominado!</p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground mt-2">{subject.progress}% completado</p>
+                    )}
                   </div>
                 ))}
+              </div>
+            )}
+            {window['progressError' as any] && (
+              <div className="mt-4 p-4 bg-red-500/10 text-red-500 rounded-lg text-sm font-mono">
+                Error: {String(window['progressError' as any])}
               </div>
             )}
           </div>

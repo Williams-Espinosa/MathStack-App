@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Lightbulb, CheckCircle, XCircle, Zap, Coins, Trophy, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../contexts/AuthContext';
 import { userService } from '../services/userService';
+import { socialService } from '../services/socialService';
 
 interface Question {
-  id: number;
+  id: string | number;
   text: string;
   options: string[];
   correct: number;
@@ -14,82 +15,22 @@ interface Question {
   xp: number;
 }
 
-const CHALLENGE_DATA: Record<string, { title: string; color: string; coins: number; questions: Question[] }> = {
-  '1': {
-    title: 'Maratón de Álgebra',
-    color: 'from-blue-500 to-blue-700',
-    coins: 100,
-    questions: [
-      { id: 1, text: 'Resuelve: 3x - 7 = 14', options: ['x = 6', 'x = 7', 'x = 5', 'x = 8'], correct: 1, hint: 'Suma 7 a ambos lados, luego divide entre 3', xp: 50 },
-      { id: 2, text: 'Simplifica: 2(x + 3) - x', options: ['x + 6', 'x + 3', '2x + 6', 'x - 6'], correct: 0, hint: 'Distribuye el 2 primero y luego combina términos semejantes', xp: 60 },
-      { id: 3, text: '¿Cuál es el valor de x en: x/4 = 3?', options: ['x = 12', 'x = 7', 'x = 3', 'x = 0.75'], correct: 0, hint: 'Multiplica ambos lados por 4', xp: 55 },
-      { id: 4, text: 'Factoriza: x² - 9', options: ['(x+3)(x-3)', '(x-3)²', '(x+9)(x-1)', 'No factoriza'], correct: 0, hint: 'Es una diferencia de cuadrados: a² - b² = (a+b)(a-b)', xp: 70 },
-      { id: 5, text: 'Si 2x + y = 10 e y = 4, ¿cuánto vale x?', options: ['x = 3', 'x = 7', 'x = 4', 'x = 2'], correct: 0, hint: 'Sustituye y = 4 en la primera ecuación', xp: 65 },
-    ],
-  },
-  '2': {
-    title: 'Desafío de Cálculo',
-    color: 'from-red-500 to-red-700',
-    coins: 250,
-    questions: [
-      { id: 1, text: "¿Cuál es la derivada de f(x) = x²?", options: ['f\'(x) = 2x', 'f\'(x) = x', 'f\'(x) = 2', 'f\'(x) = x²'], correct: 0, hint: 'Usa la regla de la potencia: d/dx(xⁿ) = n·xⁿ⁻¹', xp: 80 },
-      { id: 2, text: "Deriva: g(x) = 3x³ - 2x + 1", options: ["g'(x) = 9x² - 2", "g'(x) = 3x² - 2", "g'(x) = 9x² - 2x", "g'(x) = 6x - 2"], correct: 0, hint: 'Aplica la regla de la potencia a cada término', xp: 90 },
-      { id: 3, text: "¿Cuál es la derivada de sin(x)?", options: ['cos(x)', '-cos(x)', 'sin(x)', '-sin(x)'], correct: 0, hint: 'Es una derivada trigonométrica fundamental', xp: 85 },
-      { id: 4, text: "Deriva: h(x) = eˣ + ln(x)", options: ['eˣ + 1/x', 'eˣ + ln(x)', 'eˣ - 1/x', '1/x'], correct: 0, hint: 'La derivada de eˣ es eˣ y la de ln(x) es 1/x', xp: 95 },
-      { id: 5, text: '¿En qué punto f(x) = x² - 4x tiene mínimo?', options: ['x = 2', 'x = 0', 'x = 4', 'x = -2'], correct: 0, hint: "Iguala la derivada a 0 y resuelve", xp: 100 },
-    ],
-  },
-  '3': {
-    title: 'Sprint de Aritmética',
-    color: 'from-yellow-500 to-orange-500',
-    coins: 150,
-    questions: [
-      { id: 1, text: '¿Cuánto es 15% de 240?', options: ['36', '24', '48', '30'], correct: 0, hint: 'Multiplica 240 × 0.15', xp: 40 },
-      { id: 2, text: 'Calcula el MCM de 12 y 18', options: ['36', '6', '72', '24'], correct: 0, hint: 'El MCM es el mínimo múltiplo común', xp: 45 },
-      { id: 3, text: '¿Cuánto es 2³ × 3²?', options: ['72', '36', '48', '64'], correct: 0, hint: '2³ = 8 y 3² = 9', xp: 42 },
-      { id: 4, text: 'Si un artículo cuesta $80 con 20% de descuento, ¿cuál era el precio original?', options: ['$100', '$96', '$88', '$104'], correct: 0, hint: '80 = precio × (1 - 0.20)', xp: 55 },
-      { id: 5, text: '¿Cuál es el MCD de 48 y 36?', options: ['12', '6', '24', '9'], correct: 0, hint: 'Busca el mayor divisor común usando descomposición factorial', xp: 50 },
-    ],
-  },
-  '4': {
-    title: 'Reto de Geometría',
-    color: 'from-purple-500 to-purple-700',
-    coins: 180,
-    questions: [
-      { id: 1, text: '¿Cuánto mide el área de un círculo con radio 5?', options: ['25π', '10π', '5π', '50π'], correct: 0, hint: 'A = π·r²', xp: 55 },
-      { id: 2, text: 'Un triángulo tiene base 8 y altura 6. ¿Cuál es su área?', options: ['24', '48', '12', '36'], correct: 0, hint: 'A = (base × altura) / 2', xp: 50 },
-      { id: 3, text: 'En un triángulo rectángulo con catetos 3 y 4, ¿cuánto mide la hipotenusa?', options: ['5', '7', '6', '√7'], correct: 0, hint: 'Usa el teorema de Pitágoras: c² = a² + b²', xp: 60 },
-      { id: 4, text: '¿Cuántos grados tiene la suma de ángulos internos de un pentágono?', options: ['540°', '360°', '720°', '480°'], correct: 0, hint: 'Fórmula: (n-2) × 180°', xp: 65 },
-      { id: 5, text: '¿Cuánto mide el perímetro de un cuadrado con área 49?', options: ['28', '14', '56', '21'], correct: 0, hint: 'Primero encuentra el lado: lado = √49', xp: 58 },
-    ],
-  },
-  '5': {
-    title: 'Estadística Express',
-    color: 'from-green-500 to-green-700',
-    coins: 120,
-    questions: [
-      { id: 1, text: 'Calcula la media de: 4, 8, 6, 10, 2', options: ['6', '8', '5', '7'], correct: 0, hint: 'Suma todos y divide entre la cantidad de datos', xp: 45 },
-      { id: 2, text: '¿Cuál es la mediana de: 3, 7, 1, 9, 5?', options: ['5', '3', '7', '9'], correct: 0, hint: 'Ordena los datos y busca el valor del centro', xp: 48 },
-      { id: 3, text: '¿Qué probabilidad hay de sacar un 6 en un dado?', options: ['1/6', '1/3', '1/2', '1/4'], correct: 0, hint: 'Un dado tiene 6 caras, solo una es el 6', xp: 42 },
-      { id: 4, text: '¿Cuál es la moda de: 2, 4, 4, 6, 8, 4, 2?', options: ['4', '2', '6', '8'], correct: 0, hint: 'La moda es el valor que más se repite', xp: 44 },
-      { id: 5, text: 'Si lanzas una moneda 2 veces, ¿cuánto es P(2 caras)?', options: ['1/4', '1/2', '1/3', '3/4'], correct: 0, hint: 'Cada lanzamiento es independiente: 1/2 × 1/2', xp: 50 },
-    ],
-  },
-};
-
-const DEFAULT = {
-  title: 'Reto',
-  color: 'from-primary to-blue-700',
-  coins: 100,
-  questions: CHALLENGE_DATA['1'].questions,
-};
+interface ChallengeData {
+  title: string;
+  color: string;
+  coins: number;
+  questions: Question[];
+}
 
 export default function ChallengeExercise() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const data = (id && CHALLENGE_DATA[id]) ? CHALLENGE_DATA[id] : DEFAULT;
 
   const { user, gamificationStats, refreshProfile } = useAuth();
+
+  const [data, setData] = useState<ChallengeData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -98,6 +39,108 @@ export default function ChallengeExercise() {
   const [score, setScore] = useState(0);
   const [totalXp, setTotalXp] = useState(0);
   const [finished, setFinished] = useState(false);
+
+  useEffect(() => {
+    const loadChallenge = async () => {
+      if (!id) return;
+      setIsLoading(true);
+      try {
+        const [globalChallenges, exercises] = await Promise.all([
+          socialService.getGlobalChallenges(),
+          socialService.getChallengeExercises(id)
+        ]);
+
+        const challengeInfo = globalChallenges.find((c: any) => c.id === id);
+
+        if (!exercises || exercises.length === 0) {
+          setError('No hay ejercicios disponibles para este reto.');
+          setIsLoading(false);
+          return;
+        }
+
+        const questions = exercises.map((ex: any, index: number) => {
+          let text = ex.content;
+          let correctAnswerStr = ex.conceptTested || '';
+          let options = ['Opción A', 'Opción B', 'Opción C', 'Opción D'];
+          let correct = 0;
+          let hint = 'Analiza bien el problema.';
+
+          try {
+            const parsed = typeof ex.content === 'object' ? ex.content : JSON.parse(ex.content);
+            text = parsed.question || text;
+            if (parsed.correctAnswer) {
+              correctAnswerStr = parsed.correctAnswer;
+            }
+            if (parsed.options && Array.isArray(parsed.options)) {
+              options = parsed.options;
+            }
+            if (parsed.hint) {
+              hint = parsed.hint;
+            }
+          } catch (e) {
+          }
+
+          if (!options.includes(correctAnswerStr)) {
+            options[0] = correctAnswerStr;
+          }
+
+          correct = options.findIndex((opt: string) => opt === correctAnswerStr);
+          if (correct === -1) correct = 0;
+
+          return {
+            id: ex.id,
+            text,
+            options,
+            correct,
+            hint,
+            xp: 50
+          };
+        });
+
+        const colorMap: Record<string, string> = {
+          'beginner': 'from-green-500 to-green-700',
+          'intermediate': 'from-blue-500 to-blue-700',
+          'advanced': 'from-red-500 to-red-700'
+        };
+
+        const difficulty = challengeInfo?.difficulty?.toLowerCase() || 'intermediate';
+        let color = colorMap[difficulty] || 'from-primary to-blue-700';
+
+        setData({
+          title: challengeInfo?.title || 'Reto de Práctica',
+          color,
+          coins: challengeInfo?.rewardCoins || 100,
+          questions
+        });
+
+      } catch (err) {
+        setError('Error al cargar los ejercicios del reto.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadChallenge();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="size-full flex items-center justify-center bg-background">
+        <p className="text-muted-foreground text-lg">Cargando reto...</p>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="size-full flex flex-col items-center justify-center p-6 text-center bg-background">
+        <p className="text-muted-foreground text-lg mb-4">{error || 'Reto no encontrado'}</p>
+        <button onClick={() => navigate('/challenges')} className="text-primary hover:underline font-medium">
+          Volver a retos
+        </button>
+      </div>
+    );
+  }
 
   const question = data.questions[current];
   const isCorrect = selected === question.correct;
@@ -122,15 +165,20 @@ export default function ChallengeExercise() {
             xpPoints: gamificationStats.xpPoints + totalXp,
             coins: gamificationStats.coins + earnedCoins
           });
+
+          if (id) {
+            await socialService.submitChallengeResult(id, score, 0); // timeTakenSeconds = 0 for now
+          }
+
           await refreshProfile();
-          
+
           const completedIds = JSON.parse(localStorage.getItem('completed_challenges') || '[]');
           if (id && !completedIds.includes(id)) {
             completedIds.push(id);
             localStorage.setItem('completed_challenges', JSON.stringify(completedIds));
           }
-        } catch (error) {
-          console.error('Failed to update stats:', error);
+        } catch (err) {
+          console.error('Failed to update stats or submit result:', err);
         }
       }
     } else {
@@ -204,7 +252,6 @@ export default function ChallengeExercise() {
 
   return (
     <div className="size-full flex flex-col bg-background">
-      {/* Header */}
       <div className={`bg-gradient-to-r ${data.color} pt-12 pb-6 px-6`}>
         <div className="flex items-center justify-between mb-4">
           <button onClick={() => navigate('/challenges')} className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
@@ -236,7 +283,6 @@ export default function ChallengeExercise() {
         </div>
       </div>
 
-      {/* Question */}
       <div className="flex-1 px-6 py-6 flex flex-col overflow-auto">
         <AnimatePresence mode="wait">
           <motion.div
@@ -269,12 +315,11 @@ export default function ChallengeExercise() {
                     onClick={() => setSelected(i)}
                     className={`w-full flex items-center gap-3 px-5 py-4 rounded-[16px] border-2 text-left font-medium transition-all ${style}`}
                   >
-                    <span className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
-                      confirmed && i === question.correct ? 'bg-green-500 text-white' :
-                      confirmed && i === selected && !isCorrect ? 'bg-red-400 text-white' :
-                      selected === i && !confirmed ? 'bg-primary text-white' :
-                      'bg-muted text-muted-foreground'
-                    }`}>
+                    <span className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${confirmed && i === question.correct ? 'bg-green-500 text-white' :
+                        confirmed && i === selected && !isCorrect ? 'bg-red-400 text-white' :
+                          selected === i && !confirmed ? 'bg-primary text-white' :
+                            'bg-muted text-muted-foreground'
+                      }`}>
                       {String.fromCharCode(65 + i)}
                     </span>
                     {opt}
@@ -283,7 +328,6 @@ export default function ChallengeExercise() {
               })}
             </div>
 
-            {/* Hint */}
             {showHint && !confirmed && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
@@ -295,14 +339,12 @@ export default function ChallengeExercise() {
               </motion.div>
             )}
 
-            {/* Feedback */}
             {confirmed && (
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`rounded-[16px] p-4 mb-4 flex items-center gap-3 ${
-                  isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-                }`}
+                className={`rounded-[16px] p-4 mb-4 flex items-center gap-3 ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                  }`}
               >
                 {isCorrect
                   ? <><CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" /><div><p className="font-semibold text-green-700">¡Correcto!</p><p className="text-xs text-green-600">+{question.xp} XP ganado</p></div></>
@@ -313,7 +355,6 @@ export default function ChallengeExercise() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Actions */}
         <div className="space-y-3 mt-auto pt-2">
           {!confirmed && !showHint && (
             <button

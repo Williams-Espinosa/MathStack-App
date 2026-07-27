@@ -24,5 +24,9 @@ export const practiceService = {
 
   getLearningPath(userId: string): Promise<any> {
     return apiClient.get(`/practice/users/${userId}/learning-path`);
+  },
+
+  getSubjectsProgress(userId: string): Promise<any> {
+    return apiClient.get(`/practice/users/${userId}/subjects-progress`);
   }
 };

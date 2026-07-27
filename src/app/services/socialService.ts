@@ -24,5 +24,10 @@ export const socialService = {
 
   getGlobalChallenges(): Promise<any[]> {
     return apiClient.get<any[]>('/social/challenges/global');
+  },
+
+  getChallengeExercises(challengeId: string): Promise<any[]> {
+    return apiClient.get<any[]>(`/social/challenges/${challengeId}/exercises`);
   }
 };
+
