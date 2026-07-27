@@ -12,5 +12,17 @@ export const authService = {
 
   loginWithGoogle(data: any): Promise<AuthResponse> {
     return apiClient.post<AuthResponse>('/auth/google', data);
+  },
+
+  verifyOtp(data: { email: string, code: string }): Promise<AuthResponse> {
+    return apiClient.post<AuthResponse>('/auth/verify-otp', data);
+  },
+
+  forgotPassword(email: string): Promise<{ message: string }> {
+    return apiClient.post<{ message: string }>('/auth/forgot-password', { email });
+  },
+
+  resetPassword(data: { email: string, code: string }): Promise<{ message: string }> {
+    return apiClient.post<{ message: string }>('/auth/reset-password', data);
   }
 };

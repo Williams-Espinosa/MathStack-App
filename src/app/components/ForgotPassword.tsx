@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Mail, ArrowLeft, CheckCircle2, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { authService } from '../services/authService';
+import { toast } from 'sonner';
 
 type Step = 'email' | 'sent' | 'verify';
 
@@ -13,15 +15,20 @@ export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
 
-  const handleSendEmail = (e: React.FormEvent) => {
+  const handleSendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await authService.forgotPassword(email);
       setStep('sent');
       startResendTimer();
-    }, 1500);
+      toast.success('Código enviado a tu correo');
+    } catch (error: any) {
+      toast.error(error.message || 'Error al enviar el código');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const startResendTimer = () => {
@@ -52,19 +59,33 @@ export default function ForgotPassword() {
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const fullCode = code.join('');
     if (fullCode.length < 6) return;
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await authService.resetPassword({ email, code: fullCode });
       setStep('verify');
-    }, 1200);
+      toast.success('Contraseña restablecida exitosamente');
+    } catch (error: any) {
+      toast.error(error.message || 'Código incorrecto o expirado');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     setCode(['', '', '', '', '', '']);
-    startResendTimer();
+    setIsLoading(true);
+    try {
+      await authService.forgotPassword(email);
+      startResendTimer();
+      toast.success('Nuevo código enviado');
+    } catch (error: any) {
+      toast.error(error.message || 'Error al reenviar el código');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

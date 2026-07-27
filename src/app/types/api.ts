@@ -26,8 +26,11 @@ export interface UserProfileResponse {
 }
 
 export interface AuthResponse {
-  token: string;
-  user: User;
+  token?: string;
+  user?: User;
+  requiresOtp?: boolean;
+  tempToken?: string;
+  email?: string;
 }
 
 export interface SubjectResponse {
